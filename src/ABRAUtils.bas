@@ -1,4 +1,4 @@
-Attribute VB_Name = "ABRA_API"
+Attribute VB_Name = "ABRAUtils"
 Option Explicit
 
 Public errorInRequest As Boolean
