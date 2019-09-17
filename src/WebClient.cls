@@ -6,7 +6,7 @@ Attribute VB_Name = "WebClient"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
-Attribute VB_Exposed = False
+Attribute VB_Exposed = True
 ''
 ' WebClient v4.1.6
 ' (c) Tim Hall - https://github.com/VBA-tools/VBA-Web

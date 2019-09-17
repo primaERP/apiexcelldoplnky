@@ -6,7 +6,7 @@ Attribute VB_Name = "HttpBasicAuthenticator"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
-Attribute VB_Exposed = False
+Attribute VB_Exposed = True
 ''
 ' Http Basic Authenticator v3.0.5
 ' (c) Tim Hall - https://github.com/VBA-tools/VBA-Web
