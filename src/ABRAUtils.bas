@@ -1,46 +1,78 @@
 Attribute VB_Name = "ABRAUtils"
 Option Explicit
 
-Public errorInRequest As Boolean
-Public listCalculating As Boolean
+Public StopCalculating As Boolean
+Public LastTimeError As Double
 
 Private Function SendRequest(Url As String, Username As String, Password As String) As String
- If errorInRequest And listCalculating Then
-  SendRequest = -1
-  Exit Function
- End If
- On Error GoTo eh
-  Dim timeout As Long
-  timeout = Sheets("API").Range("Timeout").Value * 1000
+    Dim Timeout As Long
+    Dim ConnectionTimeoutMs As Long
+    Dim ConnectionTimeoutSec As Long
+    
+    Timeout = Sheets("API").Range("Timeout").Value * 1000
+    ConnectionTimeoutSec = Sheets("API").Range("ConnectionTimeout").Value
+    ConnectionTimeoutMs = ConnectionTimeoutSec * 1000
+    
+    If StopCalculating Then
+        Dim NowTime As Double
+        NowTime = TimeNow()
+        If NowTime > (LastTimeError + ConnectionTimeoutSec + 5) Then
+            StopCalculating = False
+        End If
+    End If
+    
+    If StopCalculating Then
+        SendRequest = -1
+        Exit Function
+    End If
+    
+    On Error GoTo eh
   
-  Dim Client As New WebClient
-  Dim Request As New WebRequest
-  Dim Response As WebResponse
-  Dim Auth As New HttpBasicAuthenticator
- 
-  Client.BaseUrl = Url
-  Client.TimeoutMs = timeout
-
-  Auth.Setup Username, Password
-  Set Client.Authenticator = Auth
- 
-  Set Response = Client.Execute(Request)
-
-  If Response.StatusCode = WebStatusCode.Ok Then
-   SendRequest = Response.Content
-  Else
-   showError (Response.StatusCode & ": " & Response.StatusDescription & vbCrLf & Response.Content)
-  End If
+    Dim Client As New WebClient
+    Dim Request As New WebRequest
+    Dim Response As WebResponse
+    Dim Auth As New HttpBasicAuthenticator
+         
+    Client.BaseUrl = Url
+    Client.TimeoutMs = Timeout
+    Client.ConnectionTimeoutMs = ConnectionTimeoutMs
+        
+    Auth.Setup Username, Password
+    Set Client.Authenticator = Auth
+         
+    Set Response = Client.Execute(Request)
+        
+    If Response.StatusCode = WebStatusCode.Ok Then
+        SendRequest = Response.Content
+    Else
+        ProcessError Response.StatusCode & ": " & Response.StatusDescription & vbCrLf & Response.Content, ConnectionTimeoutSec
+    End If
 Done:
-  Exit Function
+    Exit Function
 eh:
-  showError (Err.Description)
+    ProcessError Err.Description, ConnectionTimeoutSec
 End Function
 
-Private Sub showError(Message As String)
-  errorInRequest = True
+Private Sub ProcessError(ErrorDescription As String, ConnectionTimeoutSec As Long)
+    Dim NowTime As Double
+    NowTime = TimeNow()
+    
+    If NowTime > (LastTimeError + ConnectionTimeoutSec + 5) Then
+        ShowError (ErrorDescription)
+        LastTimeError = NowTime
+    Else
+        StopCalculating = True
+    End If
+End Sub
+
+Private Sub ShowError(Message As String)
   MsgBox Message
 End Sub
+
+Function TimeNow() As Double
+    'TimeNow = ((Now - 25569) * 86400000) - 3600000
+    TimeNow = (Now - Date) * 24 * 60 * 60
+End Function
 
 Private Function StrPadZero2(Value As String) As String
   If Len(Value) = 1 Then
@@ -61,7 +93,7 @@ Private Function DateToISO8601(Value As Date) As String
 End Function
 
 Private Function CorrectAccounts(AAccount As String) As String
-  Rem Funkce pro konverzi œ‹tó z form‡tu "343A,524B..." na "343MD,524D..."
+  Rem Funkce pro konverzi æÜt— z form_tu "343A,524B..." na "343MD,524D..."
   Dim mAccArray, mACC2
   mAccArray = Split(AAccount, ",")
   AAccount = ""

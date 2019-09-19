@@ -140,6 +140,13 @@ Public Authenticator As IWebAuthenticator
 ''
 Public TimeoutMs As Long
 
+'
+' @property ConnectionTimeoutMs
+' @type Long
+' @default 5000
+''
+Public ConnectionTimeoutMs As Long
+
 ''
 ' Comma separated list of domains to bypass the proxy.
 '
@@ -520,7 +527,7 @@ Public Function PrepareHttpRequest(Request As WebRequest, Optional Async As Bool
     web_Http.Open WebHelpers.MethodToName(Request.Method), Me.GetFullUrl(Request), Async
 
     ' Set timeouts
-    web_Http.SetTimeouts Me.TimeoutMs, Me.TimeoutMs, Me.TimeoutMs, Me.TimeoutMs
+    web_Http.SetTimeouts Me.ConnectionTimeoutMs, Me.ConnectionTimeoutMs, Me.ConnectionTimeoutMs, Me.TimeoutMs
 
     ' Load auto-proxy (if needed)
     If Me.EnableAutoProxy Then
@@ -570,11 +577,11 @@ Public Function PrepareHttpRequest(Request As WebRequest, Optional Async As Bool
 
     ' Set headers on http request (after open)
     For Each web_KeyValue In Request.Headers
-        web_Http.SetRequestHeader web_KeyValue("Key"), web_KeyValue("Value")
+        web_Http.SetRequestHeader web_KeyValue.Item("Key"), web_KeyValue.Item("Value")
     Next web_KeyValue
 
     For Each web_KeyValue In Request.Cookies
-        web_Http.SetRequestHeader "Cookie", web_KeyValue("Key") & "=" & web_KeyValue("Value")
+        web_Http.SetRequestHeader "Cookie", web_KeyValue.Item("Key") & "=" & web_KeyValue.Item("Value")
     Next web_KeyValue
 
     ' Give authenticator opportunity to update Http
@@ -618,7 +625,7 @@ Public Function PrepareCurlRequest(Request As WebRequest) As String
 
     ' Set timeouts
     ' (max time = resolve + sent + receive)
-    web_Curl = web_Curl & " --connect-timeout " & Me.TimeoutMs / 1000
+    web_Curl = web_Curl & " --connect-timeout " & Me.ConnectionTimeoutMs / 1000
     web_Curl = web_Curl & " --max-time " & 3 * Me.TimeoutMs / 1000
 
     ' Setup proxy
@@ -650,11 +657,11 @@ Public Function PrepareCurlRequest(Request As WebRequest) As String
 
     ' Set headers and cookies
     For Each web_KeyValue In Request.Headers
-        web_Curl = web_Curl & " -H '" & web_KeyValue("Key") & ": " & web_KeyValue("Value") & "'"
+        web_Curl = web_Curl & " -H '" & web_KeyValue.Item("Key") & ": " & web_KeyValue.Item("Value") & "'"
     Next web_KeyValue
 
     For Each web_KeyValue In Request.Cookies
-        web_CookieString = web_CookieString & web_KeyValue("Key") & "=" & web_KeyValue("Value") & ";"
+        web_CookieString = web_CookieString & web_KeyValue.Item("Key") & "=" & web_KeyValue.Item("Value") & ";"
     Next web_KeyValue
     If web_CookieString <> "" Then
         web_Curl = web_Curl & " --cookie '" & web_CookieString & "'"
@@ -698,6 +705,7 @@ Public Function Clone() As WebClient
     Clone.ProxyPassword = Me.ProxyPassword
     Clone.EnableAutoProxy = Me.EnableAutoProxy
     Clone.TimeoutMs = Me.TimeoutMs
+    Clone.ConnectionTimeoutMs = Me.ConnectionTimeoutMs
     Clone.Insecure = Me.Insecure
     Set Clone.Authenticator = Me.Authenticator
 End Function
@@ -757,6 +765,7 @@ End Sub
 
 Private Sub Class_Initialize()
     Me.TimeoutMs = web_DefaultTimeoutMs
+    Me.ConnectionTimeoutMs = web_DefaultTimeoutMs
     Me.EnableAutoProxy = False
     Me.Insecure = False
     Me.FollowRedirects = True
