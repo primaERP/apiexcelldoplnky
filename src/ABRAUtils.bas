@@ -45,12 +45,87 @@ Private Function SendRequest(Url As String, Username As String, Password As Stri
     If Response.StatusCode = WebStatusCode.Ok Then
         SendRequest = Response.Content
     Else
-        ProcessError Response.StatusCode & ": " & Response.StatusDescription & vbCrLf & Response.Content, ConnectionTimeoutSec
+        #If Mac Then
+            ProcessError Response.StatusCode & ": " & Response.StatusDescription & vbCrLf & UTF8_Decode(Response.Content), ConnectionTimeoutSec
+        #Else
+            Dim responseText As String
+            responseText = AlterCharset(Response.Content, "latin1", "UTF-8")
+            ProcessError Response.StatusCode & ": " & Response.StatusDescription & vbCrLf & responseText, ConnectionTimeoutSec
+        #End If
     End If
 Done:
     Exit Function
 eh:
     ProcessError Err.Description, ConnectionTimeoutSec
+End Function
+
+' For Mac
+Function UTF8_Decode(ByVal sStr As String)
+    Dim l As Long, sUTF8 As String, iChar As Integer, iChar2 As Integer
+    For l = 1 To Len(sStr)
+        iChar = Asc(Mid(sStr, l, 1))
+        If iChar > 127 Then
+            If Not iChar And 32 Then ' 2 chars
+            iChar2 = Asc(Mid(sStr, l + 1, 1))
+            sUTF8 = sUTF8 & ChrW$(((31 And iChar) * 64 + (63 And iChar2)))
+            l = l + 1
+        Else
+            Dim iChar3 As Integer
+            iChar2 = Asc(Mid(sStr, l + 1, 1))
+            iChar3 = Asc(Mid(sStr, l + 2, 1))
+            sUTF8 = sUTF8 & ChrW$(((iChar And 15) * 16 * 256) + ((iChar2 And 63) * 64) + (iChar3 And 63))
+            l = l + 2
+        End If
+            Else
+            sUTF8 = sUTF8 & Chr$(iChar)
+        End If
+    Next l
+    UTF8_Decode = sUTF8
+End Function
+
+
+' This will alter charset of a string from 1-byte charset
+' to another 1-byte charset
+Function AlterCharset(Str As String, FromCharset As String, ToCharset As String)
+  Dim Bytes
+  If Str <> "" Then
+    Bytes = StringToBytes(Str, FromCharset)
+    AlterCharset = BytesToString(Bytes, ToCharset)
+  Else
+    AlterCharset = ""
+  End If
+End Function
+
+' accept a string and convert it to Bytes array in the selected Charset
+Function StringToBytes(Str, Charset)
+  Dim Stream: Set Stream = CreateObject("ADODB.Stream")
+  Stream.Type = 2
+  Stream.Charset = Charset
+  Stream.Open
+  Stream.WriteText Str
+  Stream.Flush
+  Stream.Position = 0
+  ' rewind stream and read Bytes
+  Stream.Type = 1
+  StringToBytes = Stream.Read
+  Stream.Close
+  Set Stream = Nothing
+End Function
+
+' accept Bytes array and convert it to a string using the selected charset
+Function BytesToString(Bytes, Charset)
+  Dim Stream: Set Stream = CreateObject("ADODB.Stream")
+  Stream.Charset = Charset
+  Stream.Type = 1
+  Stream.Open
+  Stream.Write Bytes
+  Stream.Flush
+  Stream.Position = 0
+  ' rewind stream and read text
+  Stream.Type = 2
+  BytesToString = Stream.ReadText
+  Stream.Close
+  Set Stream = Nothing
 End Function
 
 Private Sub ProcessError(ErrorDescription As String, ConnectionTimeoutSec As Long)
