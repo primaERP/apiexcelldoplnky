@@ -391,12 +391,11 @@ Function AbraPayable(Url As String, Username As String, Password As String, Info
   AbraPayable = GetPayable(Url, Username, Password, InformationType, DocDateFrom, DocDateTo, DueDateFrom, DueDateTo, Firms, ACurrency)
 End Function
 
-Function GetStock(Url As String, Username As String, Password As String, InformationType As String, DateFrom As Date, DateTo As Date, Optional StoreMenuItems As String = "", Optional StoreCardCategories As String = "", Optional StoreCards As String = "", Optional Stores As String = "") As Double
-  Attribute GetStock.VB_Description = "Slouží k získávání informací o stavu skladu.\n Povinné parametry: Url, Username, Password, InformationType, DateFrom, DateTo\n Nepovinné parametry: StoreMenuItems, StoreCardCategories, StoreCards, Stores."
+Function GetStock(Url As String, Username As String, Password As String, InformationType As String, DateTo As Date, Optional StoreMenuItems As String = "", Optional StoreCardCategories As String = "", Optional StoreCards As String = "", Optional Stores As String = "") As Double
+  Attribute GetStock.VB_Description = "Slouží k získávání informací o stavu skladu.\n Povinné parametry: Url, Username, Password, InformationType, DateTo\n Nepovinné parametry: StoreMenuItems, StoreCardCategories, StoreCards, Stores."
   Dim mURL As String
   mURL = Url & "/utils/stock"
-  mURL = mURL & "?date-from=" & DateToISO8601(DateFrom)
-  mURL = mURL & "&date-to=" & DateToISO8601(DateTo)
+  mURL = mURL & "?date-to=" & DateToISO8601(DateTo)
   mURL = mURL & "&information-type=" & InformationType
   If StoreMenuItems <> "" Then
     mURL = mURL & "&store-menu-items=" & StoreMenuItems
@@ -415,9 +414,9 @@ Function GetStock(Url As String, Username As String, Password As String, Informa
   GetStock = Val(mResult)
 End Function
 
-Function AbraStock(Url As String, Username As String, Password As String, InformationType As String, DateFrom As Date, DateTo As Date, Optional StoreMenuItems As String = "", Optional StoreCardCategories As String = "", Optional StoreCards As String = "", Optional Stores As String = "") As Double
-  Attribute AbraStock.VB_Description = "Slouží k získávání informací o stavu skladu.\n Povinné parametry: Url, Username, Password, InformationType, DateFrom, DateTo\n Nepovinné parametry: StoreMenuItems, StoreCardCategories, StoreCards, Stores."
-  AbraStock = GetStock(Url, Username, Password, InformationType, DateFrom, DateTo, StoreMenuItems, StoreCardCategories, StoreCards, Stores)
+Function AbraStock(Url As String, Username As String, Password As String, InformationType As String, DateTo As Date, Optional StoreMenuItems As String = "", Optional StoreCardCategories As String = "", Optional StoreCards As String = "", Optional Stores As String = "") As Double
+  Attribute AbraStock.VB_Description = "Slouží k získávání informací o stavu skladu.\n Povinné parametry: Url, Username, Password, InformationType, DateTo\n Nepovinné parametry: StoreMenuItems, StoreCardCategories, StoreCards, Stores."
+  AbraStock = GetStock(Url, Username, Password, InformationType, DateTo, StoreMenuItems, StoreCardCategories, StoreCards, Stores)
 End Function
 
 Function GetMoves(Url As String, Username As String, Password As String, InformationType As String, DateFrom As Date, DateTo As Date, Optional StoreMenuItems As String = "", Optional StoreCardCategories As String = "", Optional StoreCards As String = "", Optional Stores As String = "", Optional Divisions As String = "", Optional DivisionsWithChildren As Boolean = False, Optional BusOrders As String = "", Optional BusOrdersWithChildren As Boolean = False, Optional BusTransactions As String = "", Optional BusTransactionsWithChildren As Boolean = False, Optional BusProjects As String = "", Optional BusProjectsWithChildren As Boolean = False, Optional Firms As String = "") As Double

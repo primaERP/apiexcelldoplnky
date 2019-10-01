@@ -20,15 +20,11 @@ Attribute VB_Description = "Drop-in replacement for Scripting.Dictionary on Mac\
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 Option Explicit
 
-' --------------------------------------------- '
-' Constants and Private Variables
-' --------------------------------------------- '
 
 #Const UseScriptingDictionaryIfAvailable = True
 
 #If Mac Or Not UseScriptingDictionaryIfAvailable Then
 
-' dict_KeyValue 0: FormattedKey, 1: OriginalKey, 2: Value
 Private dict_pKeyValues As Collection
 Private dict_pKeys() As Variant
 Private dict_pItems() As Variant
@@ -41,9 +37,6 @@ Private dict_pDictionary As Object
 
 #End If
 
-' --------------------------------------------- '
-' Types
-' --------------------------------------------- '
 
 Public Enum CompareMethod
     BinaryCompare = VBA.vbBinaryCompare
@@ -51,9 +44,6 @@ Public Enum CompareMethod
     DatabaseCompare = VBA.vbDatabaseCompare
 End Enum
 
-' --------------------------------------------- '
-' Properties
-' --------------------------------------------- '
 
 Public Property Get CompareMode() As CompareMethod
 Attribute CompareMode.VB_Description = "Set or get the string comparison method."
@@ -66,8 +56,6 @@ End Property
 Public Property Let CompareMode(Value As CompareMethod)
 #If Mac Or Not UseScriptingDictionaryIfAvailable Then
     If Me.Count > 0 Then
-        ' Can't change CompareMode for Dictionary that contains data
-        ' http://msdn.microsoft.com/en-us/library/office/gg278481(v=office.15).aspx
         Err.Raise 5 ' Invalid procedure call or argument
     End If
 
@@ -100,7 +88,6 @@ Attribute Item.VB_UserMemId = 0
             Item = dict_KeyValue(2)
         End If
     Else
-        ' Not found -> Returns Empty
     End If
 #Else
     If VBA.IsObject(dict_pDictionary.Item(Key)) Then
@@ -147,23 +134,13 @@ Attribute Key.VB_Description = "Change a key to a different key."
 #End If
 End Property
 
-' ============================================= '
-' Public Methods
-' ============================================= '
 
-''
-' Add an item with the given key
-'
-' @param {Variant} Key
-' @param {Variant} Item
-' --------------------------------------------- '
 Public Sub Add(Key As Variant, Item As Variant)
 Attribute Add.VB_Description = "Add a new key and item to the dictionary."
 #If Mac Or Not UseScriptingDictionaryIfAvailable Then
     If Not Me.Exists(Key) Then
         dict_AddKeyValue Key, Item
     Else
-        ' This key is already associated with an element of this collection
         Err.Raise 457
     End If
 #Else
@@ -171,12 +148,6 @@ Attribute Add.VB_Description = "Add a new key and item to the dictionary."
 #End If
 End Sub
 
-''
-' Check if an item exists for the given key
-'
-' @param {Variant} Key
-' @return {Boolean}
-' --------------------------------------------- '
 Public Function Exists(Key As Variant) As Boolean
 Attribute Exists.VB_Description = "Determine if a given key is in the dictionary."
 #If Mac Or Not UseScriptingDictionaryIfAvailable Then
@@ -186,18 +157,12 @@ Attribute Exists.VB_Description = "Determine if a given key is in the dictionary
 #End If
 End Function
 
-''
-' Get an array of all items
-'
-' @return {Variant}
-' --------------------------------------------- '
 Public Function Items() As Variant
 Attribute Items.VB_Description = "Get an array containing all items in the dictionary."
 #If Mac Or Not UseScriptingDictionaryIfAvailable Then
     If Me.Count > 0 Then
         Items = dict_pItems
     Else
-        ' Split("") creates initialized empty array that matches Dictionary Keys and Items
         Items = VBA.Split("")
     End If
 #Else
@@ -205,18 +170,12 @@ Attribute Items.VB_Description = "Get an array containing all items in the dicti
 #End If
 End Function
 
-''
-' Get an array of all keys
-'
-' @return {Variant}
-' --------------------------------------------- '
 Public Function Keys() As Variant
 Attribute Keys.VB_Description = "Get an array containing all keys in the dictionary."
 #If Mac Or Not UseScriptingDictionaryIfAvailable Then
     If Me.Count > 0 Then
         Keys = dict_pKeys
     Else
-        ' Split("") creates initialized empty array that matches Dictionary Keys and Items
         Keys = VBA.Split("")
     End If
 #Else
@@ -224,11 +183,6 @@ Attribute Keys.VB_Description = "Get an array containing all keys in the diction
 #End If
 End Function
 
-''
-' Remove an item for the given key
-'
-' @param {Variant} Key
-' --------------------------------------------- '
 Public Sub Remove(Key As Variant)
 Attribute Remove.VB_Description = "Remove a given key from the dictionary."
 #If Mac Or Not UseScriptingDictionaryIfAvailable Then
@@ -238,7 +192,6 @@ Attribute Remove.VB_Description = "Remove a given key from the dictionary."
     If Not VBA.IsEmpty(dict_KeyValue) Then
         dict_RemoveKeyValue dict_KeyValue
     Else
-        ' Application-defined or object-defined error
         Err.Raise 32811
     End If
 #Else
@@ -246,9 +199,6 @@ Attribute Remove.VB_Description = "Remove a given key from the dictionary."
 #End If
 End Sub
 
-''
-' Remove all items
-' --------------------------------------------- '
 Public Sub RemoveAll()
 Attribute RemoveAll.VB_Description = "Remove all information from the dictionary."
 #If Mac Or Not UseScriptingDictionaryIfAvailable Then
@@ -261,9 +211,6 @@ Attribute RemoveAll.VB_Description = "Remove all information from the dictionary
 #End If
 End Sub
 
-' ============================================= '
-' Private Functions
-' ============================================= '
 
 #If Mac Or Not UseScriptingDictionaryIfAvailable Then
 
@@ -286,7 +233,6 @@ Private Sub dict_AddKeyValue(dict_Key As Variant, dict_Value As Variant, Optiona
     dict_FormattedKey = dict_GetFormattedKey(dict_Key)
 
     If dict_Index >= 0 And dict_Index < dict_pKeyValues.Count Then
-        ' Shift keys/items after + including index into empty last slot
         Dim dict_i As Long
         For dict_i = UBound(dict_pKeys) To dict_Index + 1 Step -1
             dict_pKeys(dict_i) = dict_pKeys(dict_i - 1)
@@ -297,7 +243,6 @@ Private Sub dict_AddKeyValue(dict_Key As Variant, dict_Value As Variant, Optiona
             End If
         Next dict_i
 
-        ' Add key/item at index
         dict_pKeys(dict_Index) = dict_Key
         If VBA.IsObject(dict_Value) Then
             Set dict_pItems(dict_Index) = dict_Value
@@ -305,10 +250,8 @@ Private Sub dict_AddKeyValue(dict_Key As Variant, dict_Value As Variant, Optiona
             dict_pItems(dict_Index) = dict_Value
         End If
 
-        ' Add key-value at proper index
         dict_pKeyValues.Add Array(dict_FormattedKey, dict_Key, dict_Value), dict_FormattedKey, Before:=dict_Index + 1
     Else
-        ' Add key-value as last item
         If VBA.IsObject(dict_Key) Then
             Set dict_pKeys(UBound(dict_pKeys)) = dict_Key
         Else
@@ -330,10 +273,8 @@ Private Sub dict_ReplaceKeyValue(dict_KeyValue As Variant, dict_Key As Variant, 
 
     dict_Index = dict_GetKeyIndex(dict_KeyValue(1))
 
-    ' Remove existing dict_Value
     dict_RemoveKeyValue dict_KeyValue, dict_Index
 
-    ' Add new dict_Key dict_Value back
     dict_AddKeyValue dict_Key, dict_Value, dict_Index
 End Sub
 
@@ -344,7 +285,6 @@ Private Sub dict_RemoveKeyValue(dict_KeyValue As Variant, Optional ByVal dict_In
     End If
 
     If dict_Index >= 0 And dict_Index <= UBound(dict_pKeys) Then
-        ' Shift keys/items after index down
         For dict_i = dict_Index To UBound(dict_pKeys) - 1
             dict_pKeys(dict_i) = dict_pKeys(dict_i + 1)
 
@@ -355,7 +295,6 @@ Private Sub dict_RemoveKeyValue(dict_KeyValue As Variant, Optional ByVal dict_In
             End If
         Next dict_i
 
-        ' Resize keys/items to remove empty slot
         If UBound(dict_pKeys) = 0 Then
             Erase dict_pKeys
             Erase dict_pItems
@@ -378,10 +317,6 @@ Private Function dict_GetFormattedKey(dict_Key As Variant) As String
         dict_GetFormattedKey = dict_Key
 
         If Me.CompareMode = CompareMethod.BinaryCompare Then
-            ' Collection does not have method of setting key comparison
-            ' So case-sensitive keys aren't supported by default
-            ' -> Approach: Append lowercase characters to original key
-            '    AbC -> AbC___b_, abc -> abc__abc, ABC -> ABC_____
             Dim dict_Lowercase As String
             dict_Lowercase = ""
 
@@ -403,9 +338,6 @@ Private Function dict_GetFormattedKey(dict_Key As Variant) As String
             End If
         End If
     Else
-        ' For numbers, add duplicate to distinguish from strings
-        ' ->  123  -> "123__123"
-        '    "123" -> "123"
         dict_GetFormattedKey = VBA.CStr(dict_Key) & "__" & CStr(dict_Key)
     End If
 End Function
@@ -442,7 +374,6 @@ Private Function dict_GetKeyIndex(dict_Key As Variant) As Long
                 Exit For
             End If
         ElseIf VBA.IsObject(dict_pKeys(dict_i)) Or VBA.IsObject(dict_Key) Then
-            ' Both need to be objects to check equality, skip
         ElseIf dict_pKeys(dict_i) = dict_Key Then
             dict_GetKeyIndex = dict_i
             Exit For
