@@ -820,7 +820,7 @@ Public Function ExecuteInShell(web_Command As String) As ShellResult
             ExecuteInShell.Output = ExecuteInShell.Output & web_Chunk
         End If
         
-        VBA.DoEvents
+        'VBA.DoEvents
     Loop
 
 web_Cleanup:

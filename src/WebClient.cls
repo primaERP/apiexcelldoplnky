@@ -167,12 +167,12 @@ Public Function Execute(Request As WebRequest) As WebResponse
     web_Response.CreateFromCurl Me, Request, web_Result.Output
 
 #Else
-    Set web_Http = Me.PrepareHttpRequest(Request)
+    Set web_Http = Me.PrepareHttpRequest(Request, False)
 
     web_Http.Send Request.Body
-    Do While Not web_Http.WaitForResponse(0.025)
-        VBA.DoEvents
-    Loop
+    'Do While Not web_Http.WaitForResponse(0.025)
+    '    VBA.DoEvents
+    'Loop
 
     web_Response.CreateFromHttp Me, Request, web_Http
 
