@@ -186,7 +186,7 @@ Private Function CorrectAccounts(AAccount As String) As String
 End Function
                     
 Function GetTurnover(Url As String, Username As String, Password As String, Accounts As String, IncludeRequests As Boolean, DateFrom As Date, DateTo As Date, Optional Divisions As String = "", Optional DivisionsWithChildren As Boolean = False, Optional BusOrders As String = "", Optional BusOrdersWithChildren As Boolean = False, Optional BusTransactions As String = "", Optional BusTransactionsWithChildren As Boolean = False, Optional BusProjects As String = "", Optional BusProjectsWithChildren As Boolean = False, Optional Firms As String = "") As Double
-  Attribute GetTurnover.VB_Description = "Slouží k získávání informací o obratech na úctech.\n Povinné parametry: Url, Username, Password, Accounts, IncludeRequests, DateFrom, DateTo\n Nepovinné parametry: Divisions, DivisionsWithChildren, BusOrders, BusOrdersWithChildren, BusTransactions, BusTransactionsWithChildren, BusProjects, BusProjectsWithChildren, Firms."
+Attribute GetTurnover.VB_Description = "Slouží k získávání informací o obratech na úctech.\n Povinné parametry: Url, Username, Password, Accounts, IncludeRequests, DateFrom, DateTo\n Nepovinné parametry: Divisions, DivisionsWithChildren, BusOrders, BusOrdersWithChildren, BusTransactions, BusTransactionsWithChildren, BusProjects, BusProjectsWithChildren, Firms."
   Dim mURL As String
   mURL = Url & "/bookentries/turnover"
   mURL = mURL & "?date-from=" & DateToISO8601(DateFrom)
@@ -228,12 +228,12 @@ Function GetTurnover(Url As String, Username As String, Password As String, Acco
 End Function
 
 Function AbraTurnover(Url As String, Username As String, Password As String, Accounts As String, DateFrom As Date, DateTo As Date, Optional Divisions As String = "", Optional BusOrders As String = "", Optional BusTransactions As String = "", Optional BusProjects As String = "", Optional Firms As String = "") As Double
-  Attribute AbraTurnover.VB_Description = "Slouží k získávání informací o obratech na úctech.\n Povinné parametry: Url, Username, Password, Accounts, DateFrom, DateTo\n Nepovinné parametry: Divisions, BusOrders, BusTransactions, BusProjects, Firms."
+Attribute AbraTurnover.VB_Description = "Slouží k získávání informací o obratech na úctech.\n Povinné parametry: Url, Username, Password, Accounts, DateFrom, DateTo\n Nepovinné parametry: Divisions, BusOrders, BusTransactions, BusProjects, Firms."
   AbraTurnover = GetTurnover(Url, Username, Password, Accounts, True, DateFrom, DateTo, Divisions, False, BusOrders, False, BusTransactions, False, BusProjects, False, Firms)
 End Function
 
 Function GetTurnoverSimple(Url As String, Username As String, Password As String, DateFrom As Date, DateTo As Date, Conditions As String) As Double
-  Attribute GetTurnoverSimple.VB_Description = "Slouží k získávání informací o obratech na úctech.\n Povinné parametry: Url, Username, Password, DateFrom, DateTo, Conditions"
+Attribute GetTurnoverSimple.VB_Description = "Slouží k získávání informací o obratech na úctech.\n Povinné parametry: Url, Username, Password, DateFrom, DateTo, Conditions"
   Dim mURL As String
   mURL = Url & "/bookentries/turnover-simple"
   mURL = mURL & "?date-from=" & DateToISO8601(DateFrom)
@@ -245,7 +245,7 @@ Function GetTurnoverSimple(Url As String, Username As String, Password As String
 End Function
 
 Function GetBalance(Url As String, Username As String, Password As String, Accounts As String, IncludeRequests As Boolean, DateTo As Date, Optional Divisions As String = "", Optional DivisionsWithChildren As Boolean = False) As Double
-  Attribute GetBalance.VB_Description = "Slouží k získávání informací o zustatcích úctu k urcitému datu.\n Povinné parametry: Url, Username, Password, Accounts, IncludeRequests, DateTo\n Nepovinné parametry: Divisions, DivisionsWithChildren."
+Attribute GetBalance.VB_Description = "Slouží k získávání informací o zustatcích úctu k urcitému datu.\n Povinné parametry: Url, Username, Password, Accounts, IncludeRequests, DateTo\n Nepovinné parametry: Divisions, DivisionsWithChildren."
   Dim mURL As String
   mURL = Url & "/utils/balance"
   mURL = mURL & "?date-to=" & DateToISO8601(DateTo)
@@ -265,12 +265,12 @@ Function GetBalance(Url As String, Username As String, Password As String, Accou
 End Function
 
 Function AbraBalance(Url As String, Username As String, Password As String, Accounts As String, DateTo As Date, Optional Divisions As String = "") As Double
-  Attribute AbraBalance.VB_Description = "Slouží k získávání informací o zustatcích úctu k urcitému datu.\n Povinné parametry: Url, Username, Password, Accounts, DateTo\n Nepovinný parametr: Divisions."
+Attribute AbraBalance.VB_Description = "Slouží k získávání informací o zustatcích úctu k urcitému datu.\n Povinné parametry: Url, Username, Password, Accounts, DateTo\n Nepovinný parametr: Divisions."
   AbraBalance = GetBalance(Url, Username, Password, Accounts, True, DateTo, Divisions, False)
 End Function
 
 Function GetSale(Url As String, Username As String, Password As String, InformationType As String, DateFrom As Date, DateTo As Date, Optional StoreMenuItems As String = "", Optional StoreCardCategories As String = "", Optional StoreCards As String = "", Optional Stores As String = "", Optional Divisions As String = "", Optional DivisionsWithChildren As Boolean = False, Optional BusOrders As String = "", Optional BusOrdersWithChildren As Boolean = False, Optional BusTransactions As String = "", Optional BusTransactionsWithChildren As Boolean = False, Optional BusProjects As String = "", Optional BusProjectsWithChildren As Boolean = False, Optional Firms As String = "") As Double
-  Attribute GetSale.VB_Description = "Slouží k získávání informací o prodejích skladových položek.\n Povinné parametry: Url, Username, Password, InformationType, DateFrom, DateTo\n Nepovinné parametry: StoreMenuItems, StoreCardCategories, StoreCards, Stores, Divisions, DivisionsWithChildren, BusOrders, BusOrdersWithChildren, BusTransactions, BusTransactionsWithChildren, BusProjects, BusProjectsWithChildren, Firms."
+Attribute GetSale.VB_Description = "Slouží k získávání informací o prodejích skladových položek.\n Povinné parametry: Url, Username, Password, InformationType, DateFrom, DateTo\n Nepovinné parametry: StoreMenuItems, StoreCardCategories, StoreCards, Stores, Divisions, DivisionsWithChildren, BusOrders, BusOrdersWithChildren, BusTransactions, BusTransactionsWithChildren, BusProjects, BusProjectsWithChildren, Firms."
   Dim mURL As String
   mURL = Url & "/utils/sale"
   mURL = mURL & "?date-from=" & DateToISO8601(DateFrom)
@@ -321,12 +321,12 @@ Function GetSale(Url As String, Username As String, Password As String, Informat
 End Function
 
 Function AbraSale(Url As String, Username As String, Password As String, InformationType As String, DateFrom As Date, DateTo As Date, Optional StoreMenuItems As String = "", Optional StoreCardCategories As String = "", Optional StoreCards As String = "", Optional Stores As String = "", Optional Divisions As String = "", Optional BusOrders As String = "", Optional BusTransactions As String = "", Optional BusProjects As String = "", Optional Firms As String = "") As Double
-  Attribute GetSale.VB_Description = "Slouží k získávání informací o prodejích skladových položek.\n Povinné parametry: Url, Username, Password, InformationType, DateFrom, DateTo\n Nepovinné parametry: StoreMenuItems, StoreCardCategories, StoreCards, Stores, Divisions, BusOrders, BusTransactions, BusProjects, Firms."
+Attribute AbraSale.VB_Description = "Slouží k získávání informací o prodejích skladových položek.\n Povinné parametry: Url, Username, Password, InformationType, DateFrom, DateTo\n Nepovinné parametry: StoreMenuItems, StoreCardCategories, StoreCards, Stores, Divisions, BusOrders, BusTransactions, BusProjects, Firms."
   AbraSale = GetSale(Url, Username, Password, InformationType, DateFrom, DateTo, StoreMenuItems, StoreCardCategories, StoreCards, Stores, Divisions, False, BusOrders, False, BusTransactions, False, BusProjects, False, Firms)
 End Function
 
 Function GetReceivable(Url As String, Username As String, Password As String, InformationType As String, Optional DocDateFrom As Date = 0, Optional DocDateTo As Date = 0, Optional DueDateFrom As Date = 0, Optional DueDateTo As Date = 0, Optional Firms As String = "", Optional ACurrency As String = "") As Double
-  Attribute GetReceivable.VB_Description = "Slouží k získávání informací o pohledávkách.\n Povinné parametry: Url, Username, Password, InformationType\n Nepovinné parametry: DocDateFrom, DocDateTo, DueDateFrom, DueDateTo, Firms, ACurrency."
+Attribute GetReceivable.VB_Description = "Slouží k získávání informací o pohledávkách.\n Povinné parametry: Url, Username, Password, InformationType\n Nepovinné parametry: DocDateFrom, DocDateTo, DueDateFrom, DueDateTo, Firms, ACurrency."
   Dim mURL As String
   mURL = Url & "/utils/receivable"
   mURL = mURL & "?information-type=" & InformationType
@@ -354,12 +354,12 @@ Function GetReceivable(Url As String, Username As String, Password As String, In
 End Function
 
 Function AbraReceivable(Url As String, Username As String, Password As String, InformationType As String, Optional DocDateFrom As Date = 0, Optional DocDateTo As Date = 0, Optional DueDateFrom As Date = 0, Optional DueDateTo As Date = 0, Optional Firms As String = "", Optional ACurrency As String = "") As Double
-  Attribute AbraReceivable.VB_Description = "Slouží k získávání informací o pohledávkách.\n Povinné parametry: Url, Username, Password, InformationType\n Nepovinné parametry: DocDateFrom, DocDateTo, DueDateFrom, DueDateTo, Firms, ACurrency."
+Attribute AbraReceivable.VB_Description = "Slouží k získávání informací o pohledávkách.\n Povinné parametry: Url, Username, Password, InformationType\n Nepovinné parametry: DocDateFrom, DocDateTo, DueDateFrom, DueDateTo, Firms, ACurrency."
   AbraReceivable = GetReceivable(Url, Username, Password, InformationType, DocDateFrom, DocDateTo, DueDateFrom, DueDateTo, Firms, ACurrency)
 End Function
 
 Function GetPayable(Url As String, Username As String, Password As String, InformationType As String, Optional DocDateFrom As Date = 0, Optional DocDateTo As Date = 0, Optional DueDateFrom As Date = 0, Optional DueDateTo As Date = 0, Optional Firms As String = "", Optional ACurrency As String = "") As Double
-  Attribute GetPayable.VB_Description = "Slouží k získávání informací o závazcích.\n Povinné parametry: Url, Username, Password, InformationType\n Nepovinné parametry: DocDateFrom, DocDateTo, DueDateFrom, DueDateTo, Firms, ACurrency."
+Attribute GetPayable.VB_Description = "Slouží k získávání informací o závazcích.\n Povinné parametry: Url, Username, Password, InformationType\n Nepovinné parametry: DocDateFrom, DocDateTo, DueDateFrom, DueDateTo, Firms, ACurrency."
   Dim mURL As String
   mURL = Url & "/utils/payable"
   mURL = mURL & "?information-type=" & InformationType
@@ -387,12 +387,12 @@ Function GetPayable(Url As String, Username As String, Password As String, Infor
 End Function
 
 Function AbraPayable(Url As String, Username As String, Password As String, InformationType As String, Optional DocDateFrom As Date = 0, Optional DocDateTo As Date = 0, Optional DueDateFrom As Date = 0, Optional DueDateTo As Date = 0, Optional Firms As String = "", Optional ACurrency As String = "") As Double
-  Attribute AbraPayable.VB_Description = "Slouží k získávání informací o závazcích.\n Povinné parametry: Url, Username, Password, InformationType\n Nepovinné parametry: DocDateFrom, DocDateTo, DueDateFrom, DueDateTo, Firms, ACurrency."
+Attribute AbraPayable.VB_Description = "Slouží k získávání informací o závazcích.\n Povinné parametry: Url, Username, Password, InformationType\n Nepovinné parametry: DocDateFrom, DocDateTo, DueDateFrom, DueDateTo, Firms, ACurrency."
   AbraPayable = GetPayable(Url, Username, Password, InformationType, DocDateFrom, DocDateTo, DueDateFrom, DueDateTo, Firms, ACurrency)
 End Function
 
 Function GetStock(Url As String, Username As String, Password As String, InformationType As String, DateTo As Date, Optional StoreMenuItems As String = "", Optional StoreCardCategories As String = "", Optional StoreCards As String = "", Optional Stores As String = "") As Double
-  Attribute GetStock.VB_Description = "Slouží k získávání informací o stavu skladu.\n Povinné parametry: Url, Username, Password, InformationType, DateTo\n Nepovinné parametry: StoreMenuItems, StoreCardCategories, StoreCards, Stores."
+Attribute GetStock.VB_Description = "Slouží k získávání informací o stavu skladu.\n Povinné parametry: Url, Username, Password, InformationType, DateTo\n Nepovinné parametry: StoreMenuItems, StoreCardCategories, StoreCards, Stores."
   Dim mURL As String
   mURL = Url & "/utils/stock"
   mURL = mURL & "?date-to=" & DateToISO8601(DateTo)
@@ -415,12 +415,12 @@ Function GetStock(Url As String, Username As String, Password As String, Informa
 End Function
 
 Function AbraStock(Url As String, Username As String, Password As String, InformationType As String, DateTo As Date, Optional StoreMenuItems As String = "", Optional StoreCardCategories As String = "", Optional StoreCards As String = "", Optional Stores As String = "") As Double
-  Attribute AbraStock.VB_Description = "Slouží k získávání informací o stavu skladu.\n Povinné parametry: Url, Username, Password, InformationType, DateTo\n Nepovinné parametry: StoreMenuItems, StoreCardCategories, StoreCards, Stores."
+Attribute AbraStock.VB_Description = "Slouží k získávání informací o stavu skladu.\n Povinné parametry: Url, Username, Password, InformationType, DateTo\n Nepovinné parametry: StoreMenuItems, StoreCardCategories, StoreCards, Stores."
   AbraStock = GetStock(Url, Username, Password, InformationType, DateTo, StoreMenuItems, StoreCardCategories, StoreCards, Stores)
 End Function
 
 Function GetMoves(Url As String, Username As String, Password As String, InformationType As String, DateFrom As Date, DateTo As Date, Optional StoreMenuItems As String = "", Optional StoreCardCategories As String = "", Optional StoreCards As String = "", Optional Stores As String = "", Optional Divisions As String = "", Optional DivisionsWithChildren As Boolean = False, Optional BusOrders As String = "", Optional BusOrdersWithChildren As Boolean = False, Optional BusTransactions As String = "", Optional BusTransactionsWithChildren As Boolean = False, Optional BusProjects As String = "", Optional BusProjectsWithChildren As Boolean = False, Optional Firms As String = "") As Double
-  Attribute GetMoves.VB_Description = "Slouží k získávání informací o skladových pohybech.\n Povinné parametry: Url, Username, Password, InformationType, DateFrom, DateTo\n Nepovinné parametry: StoreMenuItems, StoreCardCategories, StoreCards, Stores, Divisions, DivisionsWithChildren, BusOrders, BusOrdersWithChildren, BusTransactions, BusTransactionsWithChildren, BusProjects, BusProjectsWithChildren, Firms."
+Attribute GetMoves.VB_Description = "Slouží k získávání informací o skladových pohybech.\n Povinné parametry: Url, Username, Password, InformationType, DateFrom, DateTo\n Nepovinné parametry: StoreMenuItems, StoreCardCategories, StoreCards, Stores, Divisions, DivisionsWithChildren, BusOrders, BusOrdersWithChildren, BusTransactions, BusTransactionsWithChildren, BusProjects, BusProjectsWithChildren, Firms."
   Dim mURL As String
   mURL = Url & "/utils/moves"
   mURL = mURL & "?date-from=" & DateToISO8601(DateFrom)
@@ -471,12 +471,12 @@ Function GetMoves(Url As String, Username As String, Password As String, Informa
 End Function
 
 Function AbraMoves(Url As String, Username As String, Password As String, InformationType As String, DateFrom As Date, DateTo As Date, Optional StoreMenuItems As String = "", Optional StoreCardCategories As String = "", Optional StoreCards As String = "", Optional Stores As String = "", Optional Divisions As String = "", Optional BusOrders As String = "", Optional BusTransactions As String = "", Optional BusProjects As String = "", Optional Firms As String = "") As Double
-  Attribute AbraMoves.VB_Description = "Slouží k získávání informací o skladových pohybech.\n Povinné parametry: Url, Username, Password, InformationType, DateFrom, DateTo\n Nepovinné parametry: StoreMenuItems, StoreCardCategories, StoreCards, Stores, Divisions, BusOrders, BusTransactions, BusProjects, Firms."
+Attribute AbraMoves.VB_Description = "Slouží k získávání informací o skladových pohybech.\n Povinné parametry: Url, Username, Password, InformationType, DateFrom, DateTo\n Nepovinné parametry: StoreMenuItems, StoreCardCategories, StoreCards, Stores, Divisions, BusOrders, BusTransactions, BusProjects, Firms."
   AbraMoves = GetMoves(Url, Username, Password, InformationType, DateFrom, DateTo, StoreMenuItems, StoreCardCategories, StoreCards, Stores, Divisions, False, BusOrders, False, BusTransactions, False, BusProjects, False, Firms)
 End Function
 
 Function GetDepreciation(Url As String, Username As String, Password As String, InformationType As String, Optional DateFrom As Date = 0, Optional DateTo As Date = 0, Optional AssetTypes As String = "", Optional AccDepreciationGroups As String = "", Optional TaxDepreciationGroups As String = "", Optional AssetLocations As String = "", Optional AssetLocationsWithChildren As Boolean = False, Optional Responsibles As String = "", Optional Divisions As String = "", Optional DivisionsWithChildren As Boolean = False) As Double
-  Attribute GetDepreciation.VB_Description = "Slouží k získávání informací o odpisech.\n Povinné parametry: Url, Username, Password, InformationType\n Nepovinné parametry: DateFrom, DateTo, AssetTypes, AccDepreciationGroups, TaxDepreciationGroups, AssetLocations, AssetLocationsWithChildren, Responsibles, Divisions, DivisionsWithChildren."
+Attribute GetDepreciation.VB_Description = "Slouží k získávání informací o odpisech.\n Povinné parametry: Url, Username, Password, InformationType\n Nepovinné parametry: DateFrom, DateTo, AssetTypes, AccDepreciationGroups, TaxDepreciationGroups, AssetLocations, AssetLocationsWithChildren, Responsibles, Divisions, DivisionsWithChildren."
   Dim mURL As String
   mURL = Url & "/utils/depreciation"
   mURL = mURL & "?information-type=" & InformationType
@@ -516,12 +516,12 @@ Function GetDepreciation(Url As String, Username As String, Password As String, 
 End Function
 
 Function AbraDepreciation(Url As String, Username As String, Password As String, InformationType As String, Optional DateFrom As Date = 0, Optional DateTo As Date = 0, Optional AssetTypes As String = "", Optional AccDepreciationGroups As String = "", Optional TaxDepreciationGroups As String = "", Optional AssetLocations As String = "", Optional Responsibles As String = "", Optional Divisions As String = "") As Double
-  Attribute AbraDepreciation.VB_Description = "Slouží k získávání informací o odpisech.\n Povinné parametry: Url, Username, Password, InformationType\n Nepovinné parametry: DateFrom, DateTo, AssetTypes, AccDepreciationGroups, TaxDepreciationGroups, AssetLocations, Responsibles, Divisions."
+Attribute AbraDepreciation.VB_Description = "Slouží k získávání informací o odpisech.\n Povinné parametry: Url, Username, Password, InformationType\n Nepovinné parametry: DateFrom, DateTo, AssetTypes, AccDepreciationGroups, TaxDepreciationGroups, AssetLocations, Responsibles, Divisions."
   AbraDepreciation = GetDepreciation(Url, Username, Password, InformationType, DateFrom, DateTo, AssetTypes, AccDepreciationGroups, TaxDepreciationGroups, AssetLocations, False, Responsibles, Divisions, False)
 End Function
 
-Function GetAsset(Url As String, Username As String, Password As String, InformationType As String, DateTo As Date, Optional AssetTypes As String = "", Optional AccDepreciationGroups As String = "", Optional TaxDepreciationGroups As String = "", Optional AssetLocations As String = "", Optional AssetLocationsWithChildren As Boolean = False, Optional Responsibles As String = "", Optional EvidenceDivisions As String = "", Optional EvidenceDivisionsWithChildren As Boolean = False) As Double
-  Attribute GetAsset.VB_Description = "Slouží k získávání informací o stavu majetku.\n Povinné parametry: Url, Username, Password, InformationType, DateTo\n Nepovinné parametry: AssetTypes, AccDepreciationGroups, TaxDepreciationGroups, AssetLocations, AssetLocationsWithChildren, Responsibles, EvidenceDivisions, EvidenceDivisionsWithChildren."
+Function GetAsset(Url As String, Username As String, Password As String, InformationType As String, DateTo As Date, Optional AssetTypes As String = "", Optional AccDepreciationGroups As String = "", Optional TaxDepreciationGroups As String = "", Optional AssetLocations As String = "", Optional AssetLocationsWithChildren As Boolean = False, Optional Responsibles As String = "", Optional Divisions As String = "", Optional DivisionsWithChildren As Boolean = False) As Double
+Attribute GetAsset.VB_Description = "Slouží k získávání informací o stavu majetku.\n Povinné parametry: Url, Username, Password, InformationType, DateTo\n Nepovinné parametry: AssetTypes, AccDepreciationGroups, TaxDepreciationGroups, AssetLocations, AssetLocationsWithChildren, Responsibles, EvidenceDivisions, EvidenceDivisionsWithChildren."
   Dim mURL As String
   mURL = Url & "/utils/asset"
   mURL = mURL & "?information-type=" & InformationType
@@ -544,10 +544,10 @@ Function GetAsset(Url As String, Username As String, Password As String, Informa
       mURL = mURL & "&asset-locations-with-children=true"
     End If
   End If
-  If EvidenceDivisions <> "" Then
-    mURL = mURL & "&evidence-divisions=" & EvidenceDivisions
-    If EvidenceDivisionsWithChildren Then
-      mURL = mURL & "&evidence-divisions-with-children=true"
+  If Divisions <> "" Then
+    mURL = mURL & "&divisions=" & Divisions
+    If DivisionsWithChildren Then
+      mURL = mURL & "&divisions-with-children=true"
     End If
   End If
   Dim mResult As String
@@ -555,13 +555,13 @@ Function GetAsset(Url As String, Username As String, Password As String, Informa
   GetAsset = Val(mResult)
 End Function
 
-Function AbraAsset(Url As String, Username As String, Password As String, InformationType As String, DateTo As Date, Optional AssetTypes As String = "", Optional AccDepreciationGroups As String = "", Optional TaxDepreciationGroups As String = "", Optional AssetLocations As String = "", Optional Responsibles As String = "", Optional EvidenceDivisions As String = "") As Double
-  Attribute AbraAsset.VB_Description = "Slouží k získávání informací o stavu majetku.\n Povinné parametry: Url, Username, Password, InformationType, DateTo\n Nepovinné parametry: AssetTypes, AccDepreciationGroups, TaxDepreciationGroups, AssetLocations, Responsibles, EvidenceDivisions."
-  AbraAsset = GetAsset(Url, Username, Password, InformationType, DateTo, AssetTypes, AccDepreciationGroups, TaxDepreciationGroups, AssetLocations, False, Responsibles, EvidenceDivisions, False)
+Function AbraAsset(Url As String, Username As String, Password As String, InformationType As String, DateTo As Date, Optional AssetTypes As String = "", Optional AccDepreciationGroups As String = "", Optional TaxDepreciationGroups As String = "", Optional AssetLocations As String = "", Optional Responsibles As String = "", Optional Divisions As String = "") As Double
+Attribute AbraAsset.VB_Description = "Slouží k získávání informací o stavu majetku.\n Povinné parametry: Url, Username, Password, InformationType, DateTo\n Nepovinné parametry: AssetTypes, AccDepreciationGroups, TaxDepreciationGroups, AssetLocations, Responsibles, EvidenceDivisions."
+  AbraAsset = GetAsset(Url, Username, Password, InformationType, DateTo, AssetTypes, AccDepreciationGroups, TaxDepreciationGroups, AssetLocations, False, Responsibles, Divisions, False)
 End Function
 
 Function GetPayroll(Url As String, Username As String, Password As String, InformationType As String, WagePeriods As String, Optional EmployPatterns As String = "", Optional Divisions As String = "", Optional DivisionsWithChildren As Boolean = False) As Double
-  Attribute GetPayroll.VB_Description = "Slouží k získávání informací z oblasti mezd a personalistiky.\n Povinné parametry: Url, Username, Password, InformationType, WagePeriods\n Nepovinné parametry: EmployPatterns, Divisions, DivisionsWithChildren."
+Attribute GetPayroll.VB_Description = "Slouží k získávání informací z oblasti mezd a personalistiky.\n Povinné parametry: Url, Username, Password, InformationType, WagePeriods\n Nepovinné parametry: EmployPatterns, Divisions, DivisionsWithChildren."
   Dim mURL As String
   mURL = Url & "/utils/payroll"
   mURL = mURL & "?information-type=" & InformationType
@@ -581,7 +581,7 @@ Function GetPayroll(Url As String, Username As String, Password As String, Infor
 End Function
 
 Function AbraPayroll(Url As String, Username As String, Password As String, InformationType As String, WagePeriods As String, Optional EmployPatterns As String = "", Optional Divisions As String = "") As Double
-  Attribute AbraPayroll.VB_Description = "Slouží k získávání informací z oblasti mezd a personalistiky.\n Povinné parametry: Url, Username, Password, InformationType, WagePeriods\n Nepovinné parametry: EmployPatterns, Divisions."
+Attribute AbraPayroll.VB_Description = "Slouží k získávání informací z oblasti mezd a personalistiky.\n Povinné parametry: Url, Username, Password, InformationType, WagePeriods\n Nepovinné parametry: EmployPatterns, Divisions."
   AbraPayroll = GetPayroll(Url, Username, Password, InformationType, WagePeriods, EmployPatterns, Divisions, False)
 End Function
 
