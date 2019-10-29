@@ -560,12 +560,11 @@ Attribute AbraAsset.VB_Description = "Slouží k získávání informací o stavu majet
   AbraAsset = GetAsset(Url, Username, Password, InformationType, DateTo, AssetTypes, AccDepreciationGroups, TaxDepreciationGroups, AssetLocations, False, Responsibles, Divisions, False)
 End Function
 
-Function GetPayroll(Url As String, Username As String, Password As String, InformationType As String, WagePeriods As String, Optional EmployPatterns As String = "", Optional Divisions As String = "", Optional DivisionsWithChildren As Boolean = False) As Double
-Attribute GetPayroll.VB_Description = "Slouží k získávání informací z oblasti mezd a personalistiky.\n Povinné parametry: Url, Username, Password, InformationType, WagePeriods\n Nepovinné parametry: EmployPatterns, Divisions, DivisionsWithChildren."
+Function GetPayroll(Url As String, Username As String, Password As String, InformationType As String, WagePeriods As Range, Optional EmployPatterns As String = "", Optional Divisions As String = "", Optional DivisionsWithChildren As Boolean = False) As Double
   Dim mURL As String
   mURL = Url & "/utils/payroll"
   mURL = mURL & "?information-type=" & InformationType
-  mURL = mURL & "&wage-periods=" & WagePeriods
+  mURL = mURL & "&wage-periods=" & WagePeriods.Text
   If EmployPatterns <> "" Then
     mURL = mURL & "&employ-patterns=" & EmployPatterns
   End If
@@ -580,8 +579,7 @@ Attribute GetPayroll.VB_Description = "Slouží k získávání informací z oblasti me
   GetPayroll = Val(mResult)
 End Function
 
-Function AbraPayroll(Url As String, Username As String, Password As String, InformationType As String, WagePeriods As String, Optional EmployPatterns As String = "", Optional Divisions As String = "") As Double
-Attribute AbraPayroll.VB_Description = "Slouží k získávání informací z oblasti mezd a personalistiky.\n Povinné parametry: Url, Username, Password, InformationType, WagePeriods\n Nepovinné parametry: EmployPatterns, Divisions."
+Function AbraPayroll(Url As String, Username As String, Password As String, InformationType As String, WagePeriods As Range, Optional EmployPatterns As String = "", Optional Divisions As String = "") As Double
   AbraPayroll = GetPayroll(Url, Username, Password, InformationType, WagePeriods, EmployPatterns, Divisions, False)
 End Function
 
