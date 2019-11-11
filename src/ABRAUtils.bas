@@ -86,10 +86,10 @@ End Function
 
 ' This will alter charset of a string from 1-byte charset
 ' to another 1-byte charset
-Function AlterCharset(Str As String, FromCharset As String, ToCharset As String)
+Function AlterCharset(str As String, FromCharset As String, ToCharset As String)
   Dim Bytes
-  If Str <> "" Then
-    Bytes = StringToBytes(Str, FromCharset)
+  If str <> "" Then
+    Bytes = StringToBytes(str, FromCharset)
     AlterCharset = BytesToString(Bytes, ToCharset)
   Else
     AlterCharset = ""
@@ -97,12 +97,12 @@ Function AlterCharset(Str As String, FromCharset As String, ToCharset As String)
 End Function
 
 ' accept a string and convert it to Bytes array in the selected Charset
-Function StringToBytes(Str, Charset)
+Function StringToBytes(str, Charset)
   Dim Stream: Set Stream = CreateObject("ADODB.Stream")
   Stream.Type = 2
   Stream.Charset = Charset
   Stream.Open
-  Stream.WriteText Str
+  Stream.WriteText str
   Stream.Flush
   Stream.Position = 0
   ' rewind stream and read Bytes
@@ -184,11 +184,25 @@ Private Function CorrectAccounts(AAccount As String) As String
   Next
   CorrectAccounts = AAccount
 End Function
+
+Public Function EndsWith(str As String, ending As String) As Boolean
+  Dim endingLen As Integer
+  endingLen = Len(ending)
+  EndsWith = (Right(Trim(UCase(str)), endingLen) = UCase(ending))
+End Function
+
+Private Function FilterBaseUrl(Url As String) As String
+  If EndsWith(Url, "/") Then
+    FilterBaseUrl = Left(Url, Len(Url) - 1)
+  Else
+    FilterBaseUrl = Url
+  End If
+End Function
                     
 Function GetTurnover(Url As String, Username As String, Password As String, Accounts As String, IncludeRequests As Boolean, DateFrom As Date, DateTo As Date, Optional Divisions As String = "", Optional DivisionsWithChildren As Boolean = False, Optional BusOrders As String = "", Optional BusOrdersWithChildren As Boolean = False, Optional BusTransactions As String = "", Optional BusTransactionsWithChildren As Boolean = False, Optional BusProjects As String = "", Optional BusProjectsWithChildren As Boolean = False, Optional Firms As String = "") As Double
 Attribute GetTurnover.VB_Description = "Slouží k získávání informací o obratech na úctech.\n Povinné parametry: Url, Username, Password, Accounts, IncludeRequests, DateFrom, DateTo\n Nepovinné parametry: Divisions, DivisionsWithChildren, BusOrders, BusOrdersWithChildren, BusTransactions, BusTransactionsWithChildren, BusProjects, BusProjectsWithChildren, Firms."
   Dim mURL As String
-  mURL = Url & "/bookentries/turnover"
+  mURL = FilterBaseUrl(Url) & "/bookentries/turnover"
   mURL = mURL & "?date-from=" & DateToISO8601(DateFrom)
   mURL = mURL & "&date-to=" & DateToISO8601(DateTo)
   mURL = mURL & "&accounts=" & CorrectAccounts(Accounts)
@@ -235,7 +249,7 @@ End Function
 Function GetTurnoverSimple(Url As String, Username As String, Password As String, DateFrom As Date, DateTo As Date, Conditions As String) As Double
 Attribute GetTurnoverSimple.VB_Description = "Slouží k získávání informací o obratech na úctech.\n Povinné parametry: Url, Username, Password, DateFrom, DateTo, Conditions"
   Dim mURL As String
-  mURL = Url & "/bookentries/turnover-simple"
+  mURL = FilterBaseUrl(Url) & "/bookentries/turnover-simple"
   mURL = mURL & "?date-from=" & DateToISO8601(DateFrom)
   mURL = mURL & "&date-to=" & DateToISO8601(DateTo)
   mURL = mURL & "&conditions=" & Conditions
@@ -247,7 +261,7 @@ End Function
 Function GetBalance(Url As String, Username As String, Password As String, Accounts As String, IncludeRequests As Boolean, DateTo As Date, Optional Divisions As String = "", Optional DivisionsWithChildren As Boolean = False) As Double
 Attribute GetBalance.VB_Description = "Slouží k získávání informací o zustatcích úctu k urcitému datu.\n Povinné parametry: Url, Username, Password, Accounts, IncludeRequests, DateTo\n Nepovinné parametry: Divisions, DivisionsWithChildren."
   Dim mURL As String
-  mURL = Url & "/utils/balance"
+  mURL = FilterBaseUrl(Url) & "/utils/balance"
   mURL = mURL & "?date-to=" & DateToISO8601(DateTo)
   mURL = mURL & "&accounts=" & CorrectAccounts(Accounts)
   If IncludeRequests Then
@@ -272,7 +286,7 @@ End Function
 Function GetSale(Url As String, Username As String, Password As String, InformationType As String, DateFrom As Date, DateTo As Date, Optional StoreMenuItems As String = "", Optional StoreCardCategories As String = "", Optional StoreCards As String = "", Optional Stores As String = "", Optional Divisions As String = "", Optional DivisionsWithChildren As Boolean = False, Optional BusOrders As String = "", Optional BusOrdersWithChildren As Boolean = False, Optional BusTransactions As String = "", Optional BusTransactionsWithChildren As Boolean = False, Optional BusProjects As String = "", Optional BusProjectsWithChildren As Boolean = False, Optional Firms As String = "") As Double
 Attribute GetSale.VB_Description = "Slouží k získávání informací o prodejích skladových položek.\n Povinné parametry: Url, Username, Password, InformationType, DateFrom, DateTo\n Nepovinné parametry: StoreMenuItems, StoreCardCategories, StoreCards, Stores, Divisions, DivisionsWithChildren, BusOrders, BusOrdersWithChildren, BusTransactions, BusTransactionsWithChildren, BusProjects, BusProjectsWithChildren, Firms."
   Dim mURL As String
-  mURL = Url & "/utils/sale"
+  mURL = FilterBaseUrl(Url) & "/utils/sale"
   mURL = mURL & "?date-from=" & DateToISO8601(DateFrom)
   mURL = mURL & "&date-to=" & DateToISO8601(DateTo)
   mURL = mURL & "&information-type=" & InformationType
@@ -328,7 +342,7 @@ End Function
 Function GetReceivable(Url As String, Username As String, Password As String, InformationType As String, Optional DocDateFrom As Date = 0, Optional DocDateTo As Date = 0, Optional DueDateFrom As Date = 0, Optional DueDateTo As Date = 0, Optional Firms As String = "", Optional ACurrency As String = "") As Double
 Attribute GetReceivable.VB_Description = "Slouží k získávání informací o pohledávkách.\n Povinné parametry: Url, Username, Password, InformationType\n Nepovinné parametry: DocDateFrom, DocDateTo, DueDateFrom, DueDateTo, Firms, ACurrency."
   Dim mURL As String
-  mURL = Url & "/utils/receivable"
+  mURL = FilterBaseUrl(Url) & "/utils/receivable"
   mURL = mURL & "?information-type=" & InformationType
   If DocDateFrom <> 0 Then
     mURL = mURL & "&doc-date-from=" & DateToISO8601(DocDateFrom)
@@ -361,7 +375,7 @@ End Function
 Function GetPayable(Url As String, Username As String, Password As String, InformationType As String, Optional DocDateFrom As Date = 0, Optional DocDateTo As Date = 0, Optional DueDateFrom As Date = 0, Optional DueDateTo As Date = 0, Optional Firms As String = "", Optional ACurrency As String = "") As Double
 Attribute GetPayable.VB_Description = "Slouží k získávání informací o závazcích.\n Povinné parametry: Url, Username, Password, InformationType\n Nepovinné parametry: DocDateFrom, DocDateTo, DueDateFrom, DueDateTo, Firms, ACurrency."
   Dim mURL As String
-  mURL = Url & "/utils/payable"
+  mURL = FilterBaseUrl(Url) & "/utils/payable"
   mURL = mURL & "?information-type=" & InformationType
   If DocDateFrom <> 0 Then
     mURL = mURL & "&doc-date-from=" & DateToISO8601(DocDateFrom)
@@ -394,7 +408,7 @@ End Function
 Function GetStock(Url As String, Username As String, Password As String, InformationType As String, DateTo As Date, Optional StoreMenuItems As String = "", Optional StoreCardCategories As String = "", Optional StoreCards As String = "", Optional Stores As String = "") As Double
 Attribute GetStock.VB_Description = "Slouží k získávání informací o stavu skladu.\n Povinné parametry: Url, Username, Password, InformationType, DateTo\n Nepovinné parametry: StoreMenuItems, StoreCardCategories, StoreCards, Stores."
   Dim mURL As String
-  mURL = Url & "/utils/stock"
+  mURL = FilterBaseUrl(Url) & "/utils/stock"
   mURL = mURL & "?date-to=" & DateToISO8601(DateTo)
   mURL = mURL & "&information-type=" & InformationType
   If StoreMenuItems <> "" Then
@@ -422,7 +436,7 @@ End Function
 Function GetMoves(Url As String, Username As String, Password As String, InformationType As String, DateFrom As Date, DateTo As Date, Optional StoreMenuItems As String = "", Optional StoreCardCategories As String = "", Optional StoreCards As String = "", Optional Stores As String = "", Optional Divisions As String = "", Optional DivisionsWithChildren As Boolean = False, Optional BusOrders As String = "", Optional BusOrdersWithChildren As Boolean = False, Optional BusTransactions As String = "", Optional BusTransactionsWithChildren As Boolean = False, Optional BusProjects As String = "", Optional BusProjectsWithChildren As Boolean = False, Optional Firms As String = "") As Double
 Attribute GetMoves.VB_Description = "Slouží k získávání informací o skladových pohybech.\n Povinné parametry: Url, Username, Password, InformationType, DateFrom, DateTo\n Nepovinné parametry: StoreMenuItems, StoreCardCategories, StoreCards, Stores, Divisions, DivisionsWithChildren, BusOrders, BusOrdersWithChildren, BusTransactions, BusTransactionsWithChildren, BusProjects, BusProjectsWithChildren, Firms."
   Dim mURL As String
-  mURL = Url & "/utils/moves"
+  mURL = FilterBaseUrl(Url) & "/utils/moves"
   mURL = mURL & "?date-from=" & DateToISO8601(DateFrom)
   mURL = mURL & "&date-to=" & DateToISO8601(DateTo)
   mURL = mURL & "&information-type=" & InformationType
@@ -478,7 +492,7 @@ End Function
 Function GetDepreciation(Url As String, Username As String, Password As String, InformationType As String, Optional DateFrom As Date = 0, Optional DateTo As Date = 0, Optional AssetTypes As String = "", Optional AccDepreciationGroups As String = "", Optional TaxDepreciationGroups As String = "", Optional AssetLocations As String = "", Optional AssetLocationsWithChildren As Boolean = False, Optional Responsibles As String = "", Optional Divisions As String = "", Optional DivisionsWithChildren As Boolean = False) As Double
 Attribute GetDepreciation.VB_Description = "Slouží k získávání informací o odpisech.\n Povinné parametry: Url, Username, Password, InformationType\n Nepovinné parametry: DateFrom, DateTo, AssetTypes, AccDepreciationGroups, TaxDepreciationGroups, AssetLocations, AssetLocationsWithChildren, Responsibles, Divisions, DivisionsWithChildren."
   Dim mURL As String
-  mURL = Url & "/utils/depreciation"
+  mURL = FilterBaseUrl(Url) & "/utils/depreciation"
   mURL = mURL & "?information-type=" & InformationType
   If DateFrom <> 0 Then
     mURL = mURL & "&date-from=" & DateToISO8601(DateFrom)
@@ -523,7 +537,7 @@ End Function
 Function GetAsset(Url As String, Username As String, Password As String, InformationType As String, DateTo As Date, Optional AssetTypes As String = "", Optional AccDepreciationGroups As String = "", Optional TaxDepreciationGroups As String = "", Optional AssetLocations As String = "", Optional AssetLocationsWithChildren As Boolean = False, Optional Responsibles As String = "", Optional Divisions As String = "", Optional DivisionsWithChildren As Boolean = False) As Double
 Attribute GetAsset.VB_Description = "Slouží k získávání informací o stavu majetku.\n Povinné parametry: Url, Username, Password, InformationType, DateTo\n Nepovinné parametry: AssetTypes, AccDepreciationGroups, TaxDepreciationGroups, AssetLocations, AssetLocationsWithChildren, Responsibles, EvidenceDivisions, EvidenceDivisionsWithChildren."
   Dim mURL As String
-  mURL = Url & "/utils/asset"
+  mURL = FilterBaseUrl(Url) & "/utils/asset"
   mURL = mURL & "?information-type=" & InformationType
   mURL = mURL & "&date-to=" & DateToISO8601(DateTo)
   If AssetTypes <> "" Then
@@ -562,7 +576,7 @@ End Function
 
 Function GetPayroll(Url As String, Username As String, Password As String, InformationType As String, WagePeriods As Range, Optional EmployPatterns As String = "", Optional Divisions As String = "", Optional DivisionsWithChildren As Boolean = False) As Double
   Dim mURL As String
-  mURL = Url & "/utils/payroll"
+  mURL = FilterBaseUrl(Url) & "/utils/payroll"
   mURL = mURL & "?information-type=" & InformationType
   mURL = mURL & "&wage-periods=" & WagePeriods.Text
   If EmployPatterns <> "" Then
