@@ -598,7 +598,7 @@ Function GetPayroll(Url As String, Username As String, Password As String, Infor
   Dim mURL As String
   mURL = FilterBaseUrl(Url) & "/utils/payroll"
   mURL = mURL & "?information-type=" & InformationType
-  mURL = mURL & "&wage-periods=" & Format(WagePeriods, WagePeriods.NumberFormat)
+  mURL = mURL & "&wage-periods=" & Format(WagePeriods, "yyyy\/mm")
   If EmployPatterns <> "" Then
     mURL = mURL & "&employ-patterns=" & EmployPatterns
   End If
