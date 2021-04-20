@@ -119,16 +119,15 @@ Public Function Obfuscate(Secure As String, Optional Character As String = "*") 
     Obfuscate = VBA.String$(VBA.Len(Secure), Character)
 End Function
 
-Public Function Base64Encode(Text As String) As String
+Public Function Base64Encode(text As String) As String
 #If Mac Then
     Dim web_Command As String
-    web_Command = "printf " & PrepareTextForPrintf(Text) & " | openssl base64"
+    web_Command = "printf " & PrepareTextForPrintf(text) & " | openssl enc -base64"
     Base64Encode = ExecuteInShell(web_Command).Output
 #Else
     Dim web_Bytes() As Byte
 
-    web_Bytes = VBA.StrConv(Text, vbFromUnicode)
-    Base64Encode = web_AnsiBytesToBase64(web_Bytes)
+    Base64Encode = web_AnsiBytesToBase64(text)
 #End If
     Base64Encode = VBA.Replace$(Base64Encode, vbLf, "")
 End Function
@@ -136,20 +135,33 @@ End Function
 
 #If Mac Then
 #Else
-Private Function web_AnsiBytesToBase64(web_Bytes() As Byte)
+Private Function web_AnsiBytesToBase64(text As String)
     Dim web_XmlObj As Object
     Dim web_Node As Object
+    Dim arrBytes
+
+    With CreateObject("ADODB.Stream")
+        .Type = 2 ' adTypeText
+        .Open
+        .Charset = "UTF-8"
+        .WriteText text
+        .Position = 0
+        .Type = 1 ' adTypeBinary
+        arrBytes = .Read
+        .Close
+    End With
 
     Set web_XmlObj = CreateObject("MSXML2.DOMDocument")
     Set web_Node = web_XmlObj.createElement("b64")
 
     web_Node.DataType = "bin.base64"
-    web_Node.nodeTypedValue = web_Bytes
-    web_AnsiBytesToBase64 = web_Node.Text
+    web_Node.nodeTypedValue = arrBytes
+    web_AnsiBytesToBase64 = VBA.Replace$(web_Node.text, "77u/", "")
 
     Set web_Node = Nothing
     Set web_XmlObj = Nothing
 End Function
+
 
 Private Function web_AnsiBytesToHex(web_Bytes() As Byte)
     Dim web_i As Long
