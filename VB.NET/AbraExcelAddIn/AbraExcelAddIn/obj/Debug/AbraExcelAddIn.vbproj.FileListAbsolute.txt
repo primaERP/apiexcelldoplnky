@@ -1,0 +1,14 @@
+C:\Users\karel.haruda\source\repos\AbraExcelAddIn\AbraExcelAddIn\bin\Debug\AbraExcelAddIn.dll
+C:\Users\karel.haruda\source\repos\AbraExcelAddIn\AbraExcelAddIn\bin\Debug\AbraExcelAddIn.pdb
+C:\Users\karel.haruda\source\repos\AbraExcelAddIn\AbraExcelAddIn\bin\Debug\AbraExcelAddIn.xml
+C:\Users\karel.haruda\source\repos\AbraExcelAddIn\AbraExcelAddIn\obj\Debug\AbraExcelAddIn.vbproj.AssemblyReference.cache
+C:\Users\karel.haruda\source\repos\AbraExcelAddIn\AbraExcelAddIn\obj\Debug\AbraExcelAddIn.Resources.resources
+C:\Users\karel.haruda\source\repos\AbraExcelAddIn\AbraExcelAddIn\obj\Debug\AbraExcelAddIn.vbproj.GenerateResource.cache
+C:\Users\karel.haruda\source\repos\AbraExcelAddIn\AbraExcelAddIn\obj\Debug\AbraExcelAddIn.vbproj.CoreCompileInputs.cache
+C:\Users\karel.haruda\source\repos\AbraExcelAddIn\AbraExcelAddIn\obj\Debug\AbraExcelAddIn.dll
+C:\Users\karel.haruda\source\repos\AbraExcelAddIn\AbraExcelAddIn\obj\Debug\AbraExcelAddIn.xml
+C:\Users\karel.haruda\source\repos\AbraExcelAddIn\AbraExcelAddIn\obj\Debug\AbraExcelAddIn.pdb
+C:\Users\karel.haruda\source\repos\AbraExcelAddIn\AbraExcelAddIn\bin\Debug\AbraExcelAddIn.dll.config
+C:\Users\karel.haruda\source\repos\AbraExcelAddIn\AbraExcelAddIn\bin\Debug\ExcelDna.Registration.dll
+C:\Users\karel.haruda\source\repos\AbraExcelAddIn\AbraExcelAddIn\bin\Debug\ExcelDna.Registration.pdb
+C:\Users\karel.haruda\source\repos\AbraExcelAddIn\AbraExcelAddIn\obj\Debug\AbraExcelAddIn.vbproj.CopyComplete
