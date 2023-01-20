@@ -4,23 +4,48 @@ Imports System.Security.Cryptography
 Imports System.Threading
 Imports ExcelDna.Integration
 Imports Microsoft.Office.Interop.Excel
+Imports Microsoft.VisualBasic.Logging
 'Imports ExcelDna.Registration.VisualBasic
 
 
 Public Module AbraUtils
+    Dim ID As Integer
+    Dim maxRetryCount As Integer = 2
 
-    Private Function SendRequest(Url As String, Username As String, Password As String) As String
-        Try
-            ServicePointManager.Expect100Continue = True
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12
-            Dim webClient As New System.Net.WebClient
-            webClient.Headers.Add("Authorization", "Basic " + System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(Username + ":" + Password)))
-            Dim result As String = webClient.DownloadString(Url)
-            Return result
-        Catch e As Exception
-            Return "0"
-        End Try
-
+    Private Function SendRequest(Url As String, Username As String, Password As String) As Object
+        Dim reqid = Interlocked.Add(ID, 1)
+        Dim retryCount As Integer = 0
+        While retryCount <= maxRetryCount
+            Try
+                'Debug.WriteLine(reqid.ToString + " Sending " + Url)
+                ServicePointManager.Expect100Continue = True
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12
+                Dim webClient As New System.Net.WebClient
+                webClient.Headers.Add("Authorization", "Basic " + System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(Username + ":" + Password)))
+                Dim result As String = webClient.DownloadString(Url)
+                'Debug.WriteLine(reqid.ToString + " result " + result)
+                Return Val(result)
+            Catch we As WebException
+                'Debug.WriteLine(reqid.ToString + " Error sending request " + we.Message)
+                Dim response As HttpWebResponse = DirectCast(we.Response, HttpWebResponse)
+                If response IsNot Nothing Then
+                    If response.StatusCode = 503 Then
+                        If retryCount >= maxRetryCount Then
+                            'Debug.WriteLine(reqid.ToString + " Too many retry counts ")
+                            Return ExcelError.ExcelErrorGettingData
+                        End If
+                        retryCount += 1
+                    Else
+                        'Debug.WriteLine(reqid.ToString + " Error code " + response.StatusCode.ToString)
+                        Return ExcelError.ExcelErrorGettingData
+                    End If
+                End If
+            Catch e As Exception
+                'Debug.WriteLine(reqid.ToString + "Error sending request " + e.Message)
+                Return ExcelError.ExcelErrorGettingData
+            End Try
+        End While
+        Return ExcelError.ExcelErrorGettingData
     End Function
     Function convertBoolean(Optional param1 As Object = False) As Boolean
         convertBoolean = False
@@ -82,7 +107,7 @@ Public Module AbraUtils
     End Function
 
     <ExcelFunction(Description:="Function for get turnover", IsThreadSafe:=True)>
-    Function GetTurnover(Url As String, Username As String, Password As String, Accounts As String, IncludeRequests As Object, DateFrom As Date, DateTo As Date, Optional Divisions As String = "", Optional DivisionsWithChildren As Object = False, Optional BusOrders As String = "", Optional BusOrdersWithChildren As Object = False, Optional BusTransactions As String = "", Optional BusTransactionsWithChildren As Object = False, Optional BusProjects As String = "", Optional BusProjectsWithChildren As Object = False, Optional Firms As String = "") As Double
+    Function GetTurnover(Url As String, Username As String, Password As String, Accounts As String, IncludeRequests As Object, DateFrom As Date, DateTo As Date, Optional Divisions As String = "", Optional DivisionsWithChildren As Object = False, Optional BusOrders As String = "", Optional BusOrdersWithChildren As Object = False, Optional BusTransactions As String = "", Optional BusTransactionsWithChildren As Object = False, Optional BusProjects As String = "", Optional BusProjectsWithChildren As Object = False, Optional Firms As String = "") As Object
         Dim mURL As String
         mURL = FilterBaseUrl(Url) & "/bookentries/turnover"
         mURL = mURL & "?date-from=" & DateToISO8601(DateFrom)
@@ -118,30 +143,26 @@ Public Module AbraUtils
         If Firms <> "" Then
             mURL = mURL & "&firms=" & Firms
         End If
-        Dim mResult As String
-        mResult = SendRequest(mURL, Username, Password)
-        GetTurnover = Val(mResult)
+        GetTurnover = SendRequest(mURL, Username, Password)
     End Function
 
     <ExcelFunction(Description:="Function for get turnover", IsThreadSafe:=True)>
-    Function AbraTurnover(Url As String, Username As String, Password As String, Accounts As String, DateFrom As Date, DateTo As Date, Optional Divisions As String = "", Optional BusOrders As String = "", Optional BusTransactions As String = "", Optional BusProjects As String = "", Optional Firms As String = "") As Double
+    Function AbraTurnover(Url As String, Username As String, Password As String, Accounts As String, DateFrom As Date, DateTo As Date, Optional Divisions As String = "", Optional BusOrders As String = "", Optional BusTransactions As String = "", Optional BusProjects As String = "", Optional Firms As String = "") As Object
         AbraTurnover = GetTurnover(Url, Username, Password, Accounts, True, DateFrom, DateTo, Divisions, False, BusOrders, False, BusTransactions, False, BusProjects, False, Firms)
     End Function
 
     <ExcelFunction(Description:="Function for get turnover", IsThreadSafe:=True)>
-    Function GetTurnoverSimple(Url As String, Username As String, Password As String, DateFrom As Date, DateTo As Date, Conditions As String) As Double
+    Function GetTurnoverSimple(Url As String, Username As String, Password As String, DateFrom As Date, DateTo As Date, Conditions As String) As Object
         Dim mURL As String
         mURL = FilterBaseUrl(Url) & "/bookentries/turnover-simple"
         mURL = mURL & "?date-from=" & DateToISO8601(DateFrom)
         mURL = mURL & "&date-to=" & DateToISO8601(DateTo)
         mURL = mURL & "&conditions=" & Conditions
-        Dim mResult As String
-        mResult = SendRequest(mURL, Username, Password)
-        GetTurnoverSimple = Val(mResult)
+        GetTurnoverSimple = SendRequest(mURL, Username, Password)
     End Function
 
     <ExcelFunction(Description:="Function for get balance", IsThreadSafe:=True)>
-    Function GetBalance(Url As String, Username As String, Password As String, Accounts As String, IncludeRequests As Object, DateTo As Date, Optional Divisions As String = "", Optional DivisionsWithChildren As Object = False) As Double
+    Function GetBalance(Url As String, Username As String, Password As String, Accounts As String, IncludeRequests As Object, DateTo As Date, Optional Divisions As String = "", Optional DivisionsWithChildren As Object = False) As Object
         Dim mURL As String
         mURL = FilterBaseUrl(Url) & "/utils/balance"
         mURL = mURL & "?date-to=" & DateToISO8601(DateTo)
@@ -155,18 +176,18 @@ Public Module AbraUtils
                 mURL = mURL & "&divisions-with-children=true"
             End If
         End If
-        Dim mResult As String
-        mResult = SendRequest(mURL, Username, Password)
-        GetBalance = Val(mResult)
+        GetBalance = SendRequest(mURL, Username, Password)
     End Function
 
     <ExcelFunction(Description:="Function for get balance", IsThreadSafe:=True)>
-    Function AbraBalance(Url As String, Username As String, Password As String, Accounts As String, DateTo As Date, Optional Divisions As String = "") As Double
+    Function AbraBalance(Url As String, Username As String, Password As String, Accounts As String, DateTo As Date, Optional Divisions As String = "") As Object
         AbraBalance = GetBalance(Url, Username, Password, Accounts, True, DateTo, Divisions, False)
     End Function
 
     <ExcelFunction(Description:="Function for get sale", IsThreadSafe:=True)>
-    Function GetSale(Url As String, Username As String, Password As String, InformationType As String, DateFrom As Date, DateTo As Date, Optional StoreMenuItems As String = "", Optional StoreCardCategories As String = "", Optional StoreCards As String = "", Optional Stores As String = "", Optional Divisions As String = "", Optional DivisionsWithChildren As Object = False, Optional BusOrders As String = "", Optional BusOrdersWithChildren As Object = False, Optional BusTransactions As String = "", Optional BusTransactionsWithChildren As Object = False, Optional BusProjects As String = "", Optional BusProjectsWithChildren As Object = False, Optional Firms As String = "") As Double
+    Function GetSale(Url As String, Username As String, Password As String, InformationType As String, DateFrom As Date, DateTo As Date, Optional StoreMenuItems As String = "", Optional StoreCardCategories As String = "", Optional StoreCards As String = "", Optional Stores As String = "",
+                     Optional Divisions As String = "", Optional DivisionsWithChildren As Object = False, Optional BusOrders As String = "", Optional BusOrdersWithChildren As Object = False, Optional BusTransactions As String = "", Optional BusTransactionsWithChildren As Object = False,
+                     Optional BusProjects As String = "", Optional BusProjectsWithChildren As Object = False, Optional Firms As String = "") As Object
         Dim mURL As String
         mURL = FilterBaseUrl(Url) & "/utils/sale"
         mURL = mURL & "?date-from=" & DateToISO8601(DateFrom)
@@ -211,18 +232,16 @@ Public Module AbraUtils
                 mURL = mURL & "busprojects-with-children=true"
             End If
         End If
-        Dim mResult As String
-        mResult = SendRequest(mURL, Username, Password)
-        GetSale = Val(mResult)
+        GetSale = SendRequest(mURL, Username, Password)
     End Function
 
     <ExcelFunction(Description:="Function for get sale", IsThreadSafe:=True)>
-    Function AbraSale(Url As String, Username As String, Password As String, InformationType As String, DateFrom As Date, DateTo As Date, Optional StoreMenuItems As String = "", Optional StoreCardCategories As String = "", Optional StoreCards As String = "", Optional Stores As String = "", Optional Divisions As String = "", Optional BusOrders As String = "", Optional BusTransactions As String = "", Optional BusProjects As String = "", Optional Firms As String = "") As Double
+    Function AbraSale(Url As String, Username As String, Password As String, InformationType As String, DateFrom As Date, DateTo As Date, Optional StoreMenuItems As String = "", Optional StoreCardCategories As String = "", Optional StoreCards As String = "", Optional Stores As String = "", Optional Divisions As String = "", Optional BusOrders As String = "", Optional BusTransactions As String = "", Optional BusProjects As String = "", Optional Firms As String = "") As Object
         AbraSale = GetSale(Url, Username, Password, InformationType, DateFrom, DateTo, StoreMenuItems, StoreCardCategories, StoreCards, Stores, Divisions, False, BusOrders, False, BusTransactions, False, BusProjects, False, Firms)
     End Function
 
     <ExcelFunction(Description:="Function for get receivable", IsThreadSafe:=True)>
-    Function GetReceivable(Url As String, Username As String, Password As String, InformationType As String, Optional DocDateFrom As Date = Nothing, Optional DocDateTo As Date = Nothing, Optional DueDateFrom As Date = Nothing, Optional DueDateTo As Date = Nothing, Optional Firms As String = "", Optional ACurrency As String = "") As Double
+    Function GetReceivable(Url As String, Username As String, Password As String, InformationType As String, Optional DocDateFrom As Date = Nothing, Optional DocDateTo As Date = Nothing, Optional DueDateFrom As Date = Nothing, Optional DueDateTo As Date = Nothing, Optional Firms As String = "", Optional ACurrency As String = "") As Object
         Dim mURL As String
         mURL = FilterBaseUrl(Url) & "/utils/receivable"
         mURL = mURL & "?information-type=" & InformationType
@@ -244,18 +263,16 @@ Public Module AbraUtils
         If ACurrency <> "" Then
             mURL = mURL & "&currency=" & ACurrency
         End If
-        Dim mResult As String
-        mResult = SendRequest(mURL, Username, Password)
-        GetReceivable = Val(mResult)
+        GetReceivable = SendRequest(mURL, Username, Password)
     End Function
 
     <ExcelFunction(Description:="Function for get receivable", IsThreadSafe:=True)>
-    Function AbraReceivable(Url As String, Username As String, Password As String, InformationType As String, Optional DocDateFrom As Date = Nothing, Optional DocDateTo As Date = Nothing, Optional DueDateFrom As Date = Nothing, Optional DueDateTo As Date = Nothing, Optional Firms As String = "", Optional ACurrency As String = "") As Double
+    Function AbraReceivable(Url As String, Username As String, Password As String, InformationType As String, Optional DocDateFrom As Date = Nothing, Optional DocDateTo As Date = Nothing, Optional DueDateFrom As Date = Nothing, Optional DueDateTo As Date = Nothing, Optional Firms As String = "", Optional ACurrency As String = "") As Object
         AbraReceivable = GetReceivable(Url, Username, Password, InformationType, DocDateFrom, DocDateTo, DueDateFrom, DueDateTo, Firms, ACurrency)
     End Function
 
     <ExcelFunction(Description:="Function for get payable", IsThreadSafe:=True)>
-    Function GetPayable(Url As String, Username As String, Password As String, InformationType As String, Optional DocDateFrom As Date = Nothing, Optional DocDateTo As Date = Nothing, Optional DueDateFrom As Date = Nothing, Optional DueDateTo As Date = Nothing, Optional Firms As String = "", Optional ACurrency As String = "") As Double
+    Function GetPayable(Url As String, Username As String, Password As String, InformationType As String, Optional DocDateFrom As Date = Nothing, Optional DocDateTo As Date = Nothing, Optional DueDateFrom As Date = Nothing, Optional DueDateTo As Date = Nothing, Optional Firms As String = "", Optional ACurrency As String = "") As Object
         Dim mURL As String
         mURL = FilterBaseUrl(Url) & "/utils/payable"
         mURL = mURL & "?information-type=" & InformationType
@@ -277,18 +294,16 @@ Public Module AbraUtils
         If ACurrency <> "" Then
             mURL = mURL & "&currency=" & ACurrency
         End If
-        Dim mResult As String
-        mResult = SendRequest(mURL, Username, Password)
-        GetPayable = Val(mResult)
+        GetPayable = SendRequest(mURL, Username, Password)
     End Function
 
     <ExcelFunction(Description:="Function for get payable", IsThreadSafe:=True)>
-    Function AbraPayable(Url As String, Username As String, Password As String, InformationType As String, Optional DocDateFrom As Date = Nothing, Optional DocDateTo As Date = Nothing, Optional DueDateFrom As Date = Nothing, Optional DueDateTo As Date = Nothing, Optional Firms As String = "", Optional ACurrency As String = "") As Double
+    Function AbraPayable(Url As String, Username As String, Password As String, InformationType As String, Optional DocDateFrom As Date = Nothing, Optional DocDateTo As Date = Nothing, Optional DueDateFrom As Date = Nothing, Optional DueDateTo As Date = Nothing, Optional Firms As String = "", Optional ACurrency As String = "") As Object
         AbraPayable = GetPayable(Url, Username, Password, InformationType, DocDateFrom, DocDateTo, DueDateFrom, DueDateTo, Firms, ACurrency)
     End Function
 
     <ExcelFunction(Description:="Function for get stock", IsThreadSafe:=True)>
-    Function GetStock(Url As String, Username As String, Password As String, InformationType As String, DateTo As Date, Optional StoreMenuItems As String = "", Optional StoreCardCategories As String = "", Optional StoreCards As String = "", Optional Stores As String = "") As Double
+    Function GetStock(Url As String, Username As String, Password As String, InformationType As String, DateTo As Date, Optional StoreMenuItems As String = "", Optional StoreCardCategories As String = "", Optional StoreCards As String = "", Optional Stores As String = "") As Object
         Dim mURL As String
         mURL = FilterBaseUrl(Url) & "/utils/stock"
         mURL = mURL & "?date-to=" & DateToISO8601(DateTo)
@@ -305,18 +320,16 @@ Public Module AbraUtils
         If Stores <> "" Then
             mURL = mURL & "&stores=" & Stores
         End If
-        Dim mResult As String
-        mResult = SendRequest(mURL, Username, Password)
-        GetStock = Val(mResult)
+        GetStock = SendRequest(mURL, Username, Password)
     End Function
 
     <ExcelFunction(Description:="Function for get stock", IsThreadSafe:=True)>
-    Function AbraStock(Url As String, Username As String, Password As String, InformationType As String, DateTo As Date, Optional StoreMenuItems As String = "", Optional StoreCardCategories As String = "", Optional StoreCards As String = "", Optional Stores As String = "") As Double
+    Function AbraStock(Url As String, Username As String, Password As String, InformationType As String, DateTo As Date, Optional StoreMenuItems As String = "", Optional StoreCardCategories As String = "", Optional StoreCards As String = "", Optional Stores As String = "") As Object
         AbraStock = GetStock(Url, Username, Password, InformationType, DateTo, StoreMenuItems, StoreCardCategories, StoreCards, Stores)
     End Function
 
     <ExcelFunction(Description:="Function for get moves", IsThreadSafe:=True)>
-    Function GetMoves(Url As String, Username As String, Password As String, InformationType As String, DateFrom As Date, DateTo As Date, Optional StoreMenuItems As String = "", Optional StoreCardCategories As String = "", Optional StoreCards As String = "", Optional Stores As String = "", Optional Divisions As String = "", Optional DivisionsWithChildren As Object = False, Optional BusOrders As String = "", Optional BusOrdersWithChildren As Object = False, Optional BusTransactions As String = "", Optional BusTransactionsWithChildren As Object = False, Optional BusProjects As String = "", Optional BusProjectsWithChildren As Object = False, Optional Firms As String = "") As Double
+    Function GetMoves(Url As String, Username As String, Password As String, InformationType As String, DateFrom As Date, DateTo As Date, Optional StoreMenuItems As String = "", Optional StoreCardCategories As String = "", Optional StoreCards As String = "", Optional Stores As String = "", Optional Divisions As String = "", Optional DivisionsWithChildren As Object = False, Optional BusOrders As String = "", Optional BusOrdersWithChildren As Object = False, Optional BusTransactions As String = "", Optional BusTransactionsWithChildren As Object = False, Optional BusProjects As String = "", Optional BusProjectsWithChildren As Object = False, Optional Firms As String = "") As Object
         Dim mURL As String
         mURL = FilterBaseUrl(Url) & "/utils/moves"
         mURL = mURL & "?date-from=" & DateToISO8601(DateFrom)
@@ -361,18 +374,16 @@ Public Module AbraUtils
                 mURL = mURL & "busprojects-with-children=true"
             End If
         End If
-        Dim mResult As String
-        mResult = SendRequest(mURL, Username, Password)
-        GetMoves = Val(mResult)
+        GetMoves = SendRequest(mURL, Username, Password)
     End Function
 
     <ExcelFunction(Description:="Function for get moves", IsThreadSafe:=True)>
-    Function AbraMoves(Url As String, Username As String, Password As String, InformationType As String, DateFrom As Date, DateTo As Date, Optional StoreMenuItems As String = "", Optional StoreCardCategories As String = "", Optional StoreCards As String = "", Optional Stores As String = "", Optional Divisions As String = "", Optional BusOrders As String = "", Optional BusTransactions As String = "", Optional BusProjects As String = "", Optional Firms As String = "") As Double
+    Function AbraMoves(Url As String, Username As String, Password As String, InformationType As String, DateFrom As Date, DateTo As Date, Optional StoreMenuItems As String = "", Optional StoreCardCategories As String = "", Optional StoreCards As String = "", Optional Stores As String = "", Optional Divisions As String = "", Optional BusOrders As String = "", Optional BusTransactions As String = "", Optional BusProjects As String = "", Optional Firms As String = "") As Object
         AbraMoves = GetMoves(Url, Username, Password, InformationType, DateFrom, DateTo, StoreMenuItems, StoreCardCategories, StoreCards, Stores, Divisions, False, BusOrders, False, BusTransactions, False, BusProjects, False, Firms)
     End Function
 
     <ExcelFunction(Description:="Function for get depreciation", IsThreadSafe:=True)>
-    Function GetDepreciation(Url As String, Username As String, Password As String, InformationType As String, Optional DateFrom As Date = Nothing, Optional DateTo As Date = Nothing, Optional AssetTypes As String = "", Optional AccDepreciationGroups As String = "", Optional TaxDepreciationGroups As String = "", Optional AssetLocations As String = "", Optional AssetLocationsWithChildren As Object = False, Optional Responsibles As String = "", Optional Divisions As String = "", Optional DivisionsWithChildren As Object = False) As Double
+    Function GetDepreciation(Url As String, Username As String, Password As String, InformationType As String, Optional DateFrom As Date = Nothing, Optional DateTo As Date = Nothing, Optional AssetTypes As String = "", Optional AccDepreciationGroups As String = "", Optional TaxDepreciationGroups As String = "", Optional AssetLocations As String = "", Optional AssetLocationsWithChildren As Object = False, Optional Responsibles As String = "", Optional Divisions As String = "", Optional DivisionsWithChildren As Object = False) As Object
         Dim mURL As String
         mURL = FilterBaseUrl(Url) & "/utils/depreciation"
         mURL = mURL & "?information-type=" & InformationType
@@ -406,18 +417,16 @@ Public Module AbraUtils
                 mURL = mURL & "&divisions-with-children=true"
             End If
         End If
-        Dim mResult As String
-        mResult = SendRequest(mURL, Username, Password)
-        GetDepreciation = Val(mResult)
+        GetDepreciation = SendRequest(mURL, Username, Password)
     End Function
 
     <ExcelFunction(Description:="Function for get depreciation", IsThreadSafe:=True)>
-    Function AbraDepreciation(Url As String, Username As String, Password As String, InformationType As String, Optional DateFrom As Date = Nothing, Optional DateTo As Date = Nothing, Optional AssetTypes As String = "", Optional AccDepreciationGroups As String = "", Optional TaxDepreciationGroups As String = "", Optional AssetLocations As String = "", Optional Responsibles As String = "", Optional Divisions As String = "") As Double
+    Function AbraDepreciation(Url As String, Username As String, Password As String, InformationType As String, Optional DateFrom As Date = Nothing, Optional DateTo As Date = Nothing, Optional AssetTypes As String = "", Optional AccDepreciationGroups As String = "", Optional TaxDepreciationGroups As String = "", Optional AssetLocations As String = "", Optional Responsibles As String = "", Optional Divisions As String = "") As Object
         AbraDepreciation = GetDepreciation(Url, Username, Password, InformationType, DateFrom, DateTo, AssetTypes, AccDepreciationGroups, TaxDepreciationGroups, AssetLocations, False, Responsibles, Divisions, False)
     End Function
 
     <ExcelFunction(Description:="Function for get asset", IsThreadSafe:=True)>
-    Function GetAsset(Url As String, Username As String, Password As String, InformationType As String, DateTo As Date, Optional AssetTypes As String = "", Optional AccDepreciationGroups As String = "", Optional TaxDepreciationGroups As String = "", Optional AssetLocations As String = "", Optional AssetLocationsWithChildren As Object = False, Optional Responsibles As String = "", Optional Divisions As String = "", Optional DivisionsWithChildren As Object = False) As Double
+    Function GetAsset(Url As String, Username As String, Password As String, InformationType As String, DateTo As Date, Optional AssetTypes As String = "", Optional AccDepreciationGroups As String = "", Optional TaxDepreciationGroups As String = "", Optional AssetLocations As String = "", Optional AssetLocationsWithChildren As Object = False, Optional Responsibles As String = "", Optional Divisions As String = "", Optional DivisionsWithChildren As Object = False) As Object
         Dim mURL As String
         mURL = FilterBaseUrl(Url) & "/utils/asset"
         mURL = mURL & "?information-type=" & InformationType
@@ -446,17 +455,15 @@ Public Module AbraUtils
                 mURL = mURL & "&divisions-with-children=true"
             End If
         End If
-        Dim mResult As String
-        mResult = SendRequest(mURL, Username, Password)
-        GetAsset = Val(mResult)
+        GetAsset = SendRequest(mURL, Username, Password)
     End Function
 
     <ExcelFunction(Description:="Function for get asset", IsThreadSafe:=True)>
-    Function AbraAsset(Url As String, Username As String, Password As String, InformationType As String, DateTo As Date, Optional AssetTypes As String = "", Optional AccDepreciationGroups As String = "", Optional TaxDepreciationGroups As String = "", Optional AssetLocations As String = "", Optional Responsibles As String = "", Optional Divisions As String = "") As Double
+    Function AbraAsset(Url As String, Username As String, Password As String, InformationType As String, DateTo As Date, Optional AssetTypes As String = "", Optional AccDepreciationGroups As String = "", Optional TaxDepreciationGroups As String = "", Optional AssetLocations As String = "", Optional Responsibles As String = "", Optional Divisions As String = "") As Object
         AbraAsset = GetAsset(Url, Username, Password, InformationType, DateTo, AssetTypes, AccDepreciationGroups, TaxDepreciationGroups, AssetLocations, False, Responsibles, Divisions, False)
     End Function
 
-    Function GetPayroll(Url As String, Username As String, Password As String, InformationType As String, WagePeriods As Object, Optional EmployPatterns As String = "", Optional Divisions As String = "", Optional DivisionsWithChildren As Object = False) As Double
+    Function GetPayroll(Url As String, Username As String, Password As String, InformationType As String, WagePeriods As Object, Optional EmployPatterns As String = "", Optional Divisions As String = "", Optional DivisionsWithChildren As Object = False) As Object
         Dim mURL As String
         mURL = FilterBaseUrl(Url) & "/utils/payroll"
         mURL = mURL & "?information-type=" & InformationType
@@ -471,13 +478,11 @@ Public Module AbraUtils
                 mURL = mURL & "&divisions-with-children=true"
             End If
         End If
-        Dim mResult As String
-        mResult = SendRequest(mURL, Username, Password)
-        GetPayroll = Val(mResult)
+        GetPayroll = SendRequest(mURL, Username, Password)
     End Function
 
     <ExcelFunction(Description:="Function for get turnover", IsThreadSafe:=True)>
-    Function AbraPayroll(Url As String, Username As String, Password As String, InformationType As String, WagePeriods As Object, Optional EmployPatterns As String = "", Optional Divisions As String = "") As Double
+    Function AbraPayroll(Url As String, Username As String, Password As String, InformationType As String, WagePeriods As Object, Optional EmployPatterns As String = "", Optional Divisions As String = "") As Object
         AbraPayroll = GetPayroll(Url, Username, Password, InformationType, WagePeriods, EmployPatterns, Divisions, False)
     End Function
 End Module
