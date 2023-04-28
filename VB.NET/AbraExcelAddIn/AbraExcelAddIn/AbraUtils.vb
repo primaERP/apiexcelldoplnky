@@ -103,7 +103,9 @@ Public Module AbraUtils
     End Function
 
     Private Function DateToISO8601(dateparam As Date)
-        DateToISO8601 = dateparam.Date.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.sssZ")
+        'KAHA - tohle je prevod, ktery to neprevadi do UTC ale vezme ten datum zapsany v excelu a prevede ho presne stejne a nepridava tam informaci o TIME zone, takze server APi to pak bere jak svoji casovou zonu a take to neprevadi - mozna to je lepsi nezracovat se zonama. 
+        'DateToISO8601 = dateparam.Date.ToString("yyyy-MM-ddTHH:mm:ss.sss")
+        DateToISO8601 = dateparam.Date.ToUniversalTime.ToString("yyyy-MM-ddTHH:mm:ss.sssZ")
     End Function
 
     <ExcelFunction(Description:="Function for get turnover", IsThreadSafe:=True)>
@@ -146,7 +148,14 @@ Public Module AbraUtils
         GetTurnover = SendRequest(mURL, Username, Password)
     End Function
 
-    <ExcelFunction(Description:="Function for get turnover", IsThreadSafe:=True)>
+    'Specialni volani  pro zajisteni zpětné kompatibility s úplně první verzí doplňků, kdy původní AbraTurnover volal defaultně BusOrders,BusTransactions,BusProjects s podřízenými. Druhá verze stále ve VBA, které přidávala nové funkce, toto chování změnila a do produkce se dostala verze, která nepoužívá podřízene defaultně nikde.
+    'Bohužel toto chování již nelze změnit, takže jsme doplnili ekvivalent původní funkce.
+    <ExcelFunction(Description:="Function for get turnover - Divisions wihtou children and BusOrders,BusTransactions,BusProjects with children", IsThreadSafe:=True)>
+    Function AbraTurnoverWithChildren(Url As String, Username As String, Password As String, Accounts As String, DateFrom As Date, DateTo As Date, Optional Divisions As String = "", Optional BusOrders As String = "", Optional BusTransactions As String = "", Optional BusProjects As String = "", Optional Firms As String = "") As Object
+        AbraTurnoverWithChildren = GetTurnover(Url, Username, Password, Accounts, True, DateFrom, DateTo, Divisions, False, BusOrders, True, BusTransactions, True, BusProjects, True, Firms)
+    End Function
+
+    <ExcelFunction(Description:="Function for get turnover - Divisions,BusOrders,BusTransactions,BusProjects wihtou children ", IsThreadSafe:=True)>
     Function AbraTurnover(Url As String, Username As String, Password As String, Accounts As String, DateFrom As Date, DateTo As Date, Optional Divisions As String = "", Optional BusOrders As String = "", Optional BusTransactions As String = "", Optional BusProjects As String = "", Optional Firms As String = "") As Object
         AbraTurnover = GetTurnover(Url, Username, Password, Accounts, True, DateFrom, DateTo, Divisions, False, BusOrders, False, BusTransactions, False, BusProjects, False, Firms)
     End Function
